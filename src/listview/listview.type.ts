@@ -54,7 +54,7 @@ export interface FilterButton {
   disabled: boolean
   ghost: boolean
   href: string
-  target: string // when herf enable it work
+  target: string // href启用时有效
   htmlType: string // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#attr-type
   icon: string
   loading: boolean | /* delay */ number
@@ -88,8 +88,8 @@ export interface FilterField {
   /** 可传入对应控件原始的 events */
   componentEvents?: { [k: string]: () => void }
 
-  /** 可传入对应控件原始的 slots */
-  componentSlots?: { [k: string]: any }
+  /** 可传入对应控件原始的 children */
+  componentChildren?: { [k: string]: any }
 }
 
 export interface ListviewProps {
@@ -156,10 +156,10 @@ export interface ListviewProps {
   /** 表格列配置。 default: [] */
   tableColumns: TableColumn[]
 
-  /** 可传入 <el-table> 的所有支持属性。 default: {} */
+  /** 可传入 Antd Table 的所有支持属性。 default: {} */
   tableProps: { [k: string]: any }
 
-  /** 可传入 <el-table> 的所有支持事件。 default: {} */
+  /** 可传入 Antd Table 的所有支持事件。 default: {} */
   tableEvents: { [k: string]: () => void }
 
   /** 是否开启表格行选择功能，传入 'single' 为表格单选效果。 default: true */
