@@ -1,5 +1,10 @@
 import React, { FC } from 'react'
-import { ListviewProps } from './listview.type'
+
+// components
+import ListviewHeader from '@/components/listview-header'
+
+// types
+import { ListviewProps } from '@/listview.type'
 
 const Listview: FC<ListviewProps> = function({
   headerTitle,
@@ -30,7 +35,13 @@ const Listview: FC<ListviewProps> = function({
   pageSizes = [20, 50, 100],
   pageSize = 20
 }: ListviewProps) {
-  return <div className='listview'></div>
+  return (
+    <div className='listview'>
+      <ListviewHeader title={headerTitle} nav={headerNav} />
+
+      <div className='listview__main'></div>
+    </div>
+  )
 }
 
 export default Listview

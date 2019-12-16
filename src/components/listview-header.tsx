@@ -1,12 +1,7 @@
 import React, { FC } from 'react'
+import { ListviewHeaderProps } from '@/listview.type'
 import { Breadcrumb } from 'antd'
 import BreadcrumbItem from 'antd/lib/breadcrumb/BreadcrumbItem'
-
-interface ListviewHeaderProps {
-  title: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  nav: Array<any>;
-}
 
 const ListviewHeader: FC<ListviewHeaderProps> = function({ title, nav }: ListviewHeaderProps) {
   return (

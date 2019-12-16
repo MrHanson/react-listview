@@ -2,94 +2,9 @@
 
 import { ReactNode } from 'react'
 
-type FieldType =
-  | 'label'
-  | 'text'
-  | 'number'
-  | 'select'
-  | 'multipleSelect'
-  | 'date'
-  | 'dateRange'
-  | 'timeSelect'
-  | 'timePicker'
-  | 'timePickerRange'
-  | 'dateTime'
-  | 'dateTimeRange'
-  | 'cascader'
-
-interface SelectOption {
-  disabled: boolean
+export interface ListviewHeaderProps {
   title: string
-  key: string
-  value: string | number
-  className: string
-  children?: SelectOption[]
-}
-
-export interface TableColumn {
-  dataIndex: string // column key
-  defaultFilteredValue: string[]
-  defaultSortOrder: 'ascend' | 'descend'
-  align: string
-  ellipsis: boolean
-  className: string
-  colSpan: number
-  filterDropdown: ReactNode
-  filterDropdownVisible: boolean
-  filtered: boolean
-  filteredValue: string[]
-  filterIcon: ReactNode
-}
-
-export interface Pagination {
-  position: 'top' | 'bottom' | 'both'
-}
-
-export interface TableColumnGroup {
-  title: string
-  tableColumns: TableColumn[]
-}
-
-export interface FilterButton {
-  disabled: boolean
-  ghost: boolean
-  href: string
-  target: string // href启用时有效
-  htmlType: string // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#attr-type
-  icon: string
-  loading: boolean | /* delay */ number
-  shape: 'circle' | 'round'
-  type: 'primary' | 'dashed' | 'danger' | 'link'
-  onClick: (event: Event) => void
-}
-
-export interface FilterField {
-  /** 字段控件类型 */
-  type?: FieldType
-
-  /** 字段提交参数名 */
-  model?: string
-
-  /** 字段文本说明 */
-  label?: string
-
-  /** 是否显示为禁用状态 */
-  disabled?: boolean
-
-  /** 类型为 select 或 multipleSelect 时的选项配置 */
-  options?:
-  | SelectOption[]
-  | Promise<SelectOption[]>
-  | ((done: (options: SelectOption[]) => void) => void)
-
-  /** 可传入对应控件原始的 props */
-  componentProps?: { [k: string]: any }
-
-  /** 可传入对应控件原始的 events */
-  componentEvents?: { [k: string]: () => void }
-
-  /** 可传入对应控件原始的 children */
-  componentChildren?: { [k: string]: any }
+  nav: Array<any>
 }
 
 export interface ListviewProps {
@@ -187,4 +102,111 @@ export interface ListviewProps {
 
   /** 默认每页分页数量。 default: 20 */
   pageSize: number
+}
+
+export interface FilterbarProps {
+  filterButtons: FilterButton[]
+  filterFields: FilterField[]
+  filterModel: { [k: string]: any }
+  filterbarFold: boolean
+  showFilterSearch: boolean
+  showFilterReset: boolean
+}
+
+export interface FilterbarFormProps {
+  filterFields: FilterField[]
+  filterModel: { [k: string]: any }
+  filterbarFold: boolean
+  showFilterSearch: boolean
+  showFilterReset: boolean
+}
+
+export interface TableColumn {
+  dataIndex: string // column key
+  defaultFilteredValue: string[]
+  defaultSortOrder: 'ascend' | 'descend'
+  align: string
+  ellipsis: boolean
+  className: string
+  colSpan: number
+  filterDropdown: ReactNode
+  filterDropdownVisible: boolean
+  filtered: boolean
+  filteredValue: string[]
+  filterIcon: ReactNode
+}
+
+export interface Pagination {
+  position: 'top' | 'bottom' | 'both'
+}
+
+export interface TableColumnGroup {
+  title: string
+  tableColumns: TableColumn[]
+}
+
+export interface FilterButton {
+  disabled: boolean
+  ghost: boolean
+  href: string
+  target: string // href启用时有效
+  htmlType: string // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#attr-type
+  icon: string
+  loading: boolean | /* delay */ number
+  shape: 'circle' | 'round'
+  type: 'primary' | 'dashed' | 'danger' | 'link'
+  onClick: (event: Event) => void
+}
+
+export interface FilterField {
+  /** 字段控件类型 */
+  type?: FieldType
+
+  /** 字段提交参数名 */
+  model?: string
+
+  /** 字段文本说明 */
+  label?: string
+
+  /** 是否显示为禁用状态 */
+  disabled?: boolean
+
+  /** 类型为 select 或 multipleSelect 时的选项配置 */
+  options?:
+  | SelectOption[]
+  | Promise<SelectOption[]>
+  | ((done: (options: SelectOption[]) => void) => void)
+
+  /** 可传入对应控件原始的 props */
+  componentProps?: { [k: string]: any }
+
+  /** 可传入对应控件原始的 events */
+  componentEvents?: { [k: string]: () => void }
+
+  /** 可传入对应控件原始的 children */
+  componentChildren?: { [k: string]: any }
+}
+
+type FieldType =
+  | 'label'
+  | 'text'
+  | 'number'
+  | 'select'
+  | 'multipleSelect'
+  | 'date'
+  | 'dateRange'
+  | 'timeSelect'
+  | 'timePicker'
+  | 'timePickerRange'
+  | 'dateTime'
+  | 'dateTimeRange'
+  | 'cascader'
+
+interface SelectOption {
+  disabled: boolean
+  title: string
+  key: string
+  value: string | number
+  className: string
+  children?: SelectOption[]
 }
