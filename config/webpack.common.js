@@ -1,3 +1,5 @@
+const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
+
 const config = {
   resolve: {
     extensions: ['.ts', '.tsx', '.jsx', '.js']
@@ -8,7 +10,8 @@ const config = {
         test: /\.(ts)x?$/,
         exclude: /node_modules/,
         use: {
-          loader: 'babel-loader'
+          loader: 'babel-loader',
+          options: ['lodash']
         }
       },
       {
@@ -20,19 +23,19 @@ const config = {
         test: /\.less$/,
         exclude: /node_modules/,
         use: [
-          {
-            loader: 'style-loader' // creates style nodes from JS strings
-          },
-          {
-            loader: 'css-loader' // translates CSS into CommonJS
-          },
-          {
-            loader: 'less-loader' // compiles Less to CSS
-          }
+          'style-loader' /* creates style nodes from JS strings */,
+          'css-loader' /* translates CSS into CommonJS */,
+          'less-loader' /* compiles Less to CSS */
         ]
       }
     ]
-  }
+  },
+  plugins: [
+    new LodashModuleReplacementPlugin({
+      collections: true,
+      shorthands: true
+    })
+  ]
 }
 
 module.exports = config
