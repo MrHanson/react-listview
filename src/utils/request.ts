@@ -10,20 +10,17 @@ import {
   TransformRequestData,
   TransformResponseData,
   ValidateResponse,
-  ResolveResponseErrorMessage
+  ResolveResponseErrorMessage,
+  ContentDataMap
 } from '@/listview.type'
+import { dataMapping } from './utils'
 
 let _requestCancelToken
 
 const DEFAULT_PROPS = {
   validateResponse: (response): boolean => (response.is_success ? true : false),
-  resolveResponseErrorMessage: (response): string => {
-    try {
-      return response.error_info.msg
-    } catch (e) {
-      return '未知错误'
-    }
-  }
+  resolveResponseErrorMessage: (response): string => response?.error_info?.msg || 'unknown error',
+  contentDataMap: { items: 'result.items', total: 'result.total_count' }
 }
 
 async function request(
@@ -31,8 +28,9 @@ async function request(
   requestHandler?: RequestHandler,
   transformRequestData?: TransformRequestData,
   validateResponse: ValidateResponse = DEFAULT_PROPS.validateResponse,
-  resolveResponseErrorMessage?: ResolveResponseErrorMessage = DEFAULT_PROPS.resolveResponseErrorMessage,
-  transformResponseData?: TransformResponseData
+  resolveResponseErrorMessage: ResolveResponseErrorMessage = DEFAULT_PROPS.resolveResponseErrorMessage,
+  transformResponseData?: TransformResponseData,
+  contentDataMap: ContentDataMap = DEFAULT_PROPS.contentDataMap
   // eslint-disable-next-line
 ): Promise<any> {
   if (!requestHandler && !requestConfig.url) {
@@ -71,20 +69,17 @@ async function request(
     }
   }
 
+  let contentResponse
   if (!_responseErr) {
     // validate response
     if (validateResponse(response)) {
-      resolveResponseErrorMessage(response)
+      contentResponse = transformResponseData?.(response) || response
     } else {
-      // set error tip content
+      resolveResponseErrorMessage?.(response)
     }
   }
 
-  if (transformResponseData) {
-    return transformResponseData(response)
-  }
-
-  return response
+  return dataMapping(contentResponse, contentDataMap)
 }
 
 export default request

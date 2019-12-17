@@ -42,7 +42,7 @@ export interface ListviewProps {
   transformResponseData?: TransformResponseData
 
   /** 数据接口响应内容属性映射。 default: { items: 'result.items', total: 'result.total_count' } */
-  contentDataMap?: { [k: string]: string }
+  contentDataMap?: ContentDataMap
 
   /** 可用在 autoload 为 false 时候，初始显示的提示信息。 default: null */
   contentMessage?: null | string
@@ -219,3 +219,5 @@ export type TransformResponseData = (responseData?: object) => void
 export type ValidateResponse = (response?: any) => boolean
 
 export type ResolveResponseErrorMessage = (response?: any) => any
+
+export type ContentDataMap = { [k: string]: string }
