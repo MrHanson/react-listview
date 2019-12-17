@@ -1,15 +1,14 @@
 import React, { FC } from 'react'
 import { ListviewHeaderProps } from '@/listview.type'
 import { Breadcrumb } from 'antd'
-import BreadcrumbItem from 'antd/lib/breadcrumb/BreadcrumbItem'
 
 const ListviewHeader: FC<ListviewHeaderProps> = function({ title, nav }: ListviewHeaderProps) {
   return (
     <div className='listview__header'>
-      <h1>{title}</h1>
+      <h1 className='listview__title'>{title}</h1>
       <Breadcrumb>
         {nav.map((item, index) => (
-          <BreadcrumbItem key={'BI' + index}>{item}</BreadcrumbItem>
+          <Breadcrumb.Item key={'BI' + index}>{item}</Breadcrumb.Item>
         ))}
       </Breadcrumb>
     </div>

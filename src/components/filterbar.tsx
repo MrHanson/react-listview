@@ -6,8 +6,8 @@ const Filterbar: FC<FilterbarProps> = function({
   filterButtons,
   filterFields,
   filterModel,
-  filterbarFold,
-  showFilterSearch,
+  filterbarFold = true,
+  showFilterSearch = true,
   showFilterReset
 }: FilterbarProps) {
   return (

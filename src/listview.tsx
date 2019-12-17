@@ -1,10 +1,15 @@
-import React, { FC } from 'react'
+import React, { FC, useState, useEffect } from 'react'
 
 // components
 import ListviewHeader from '@/components/listview-header'
+import Filterbar from '@/components/filterbar'
+import { Skeleton, Table } from 'antd'
 
 // types
-import { ListviewProps } from '@/listview.type'
+import { ListviewProps, FilterbarProps, RequestMethod } from '@/listview.type'
+
+// utils
+import request from '@/utils/request'
 
 const Listview: FC<ListviewProps> = function({
   headerTitle,
@@ -22,24 +27,61 @@ const Listview: FC<ListviewProps> = function({
   contentMessage = null,
   validateResponse,
   resolveResponseErrorMessage,
-  filterButtons,
-  filterFields,
+  filterButtons = [],
+  filterFields = [],
   filterModel = {},
   showFilterSearch = true,
-  showFilterReset = false,
+  showFilterReset = true,
   tableColumns = [],
   tableProps,
   tableEvents,
   tableSelectionColumn = true,
   usePage = true,
-  pageSizes = [20, 50, 100],
+  pageSizeOptions = ['20', '50', '100'],
   pageSize = 20
 }: ListviewProps) {
+  // skeleton loading animation
+  const [loading, setLoading] = useState(true)
+  const [contentData, setContentData] = useState([])
+
+  useEffect(() => {
+    setLoading(false)
+
+    // auto fetch table data
+    // if (autoload) {
+    // }
+  }, [])
+
+  const filterBarProps: FilterbarProps = {
+    filterButtons,
+    filterFields,
+    filterModel,
+    showFilterSearch,
+    showFilterReset
+  }
+
   return (
     <div className='listview'>
-      <ListviewHeader title={headerTitle} nav={headerNav} />
+      {headerTitle && headerNav ? <ListviewHeader title={headerTitle} nav={headerNav} /> : ''}
 
-      <div className='listview__main'></div>
+      <div className='listview__main'>
+        <Filterbar {...filterBarProps} />
+        <Skeleton loading={loading} active>
+          <Table
+            pagination={{
+              showSizeChanger: true,
+              showQuickJumper: true,
+              pageSizeOptions,
+              pageSize,
+              total: contentData.length,
+              showTotal: function(total): string {
+                return `合计：${total}`
+              },
+              onChange: function(page, pageSize): void {}
+            }}
+          ></Table>
+        </Skeleton>
+      </div>
     </div>
   )
 }
