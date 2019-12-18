@@ -9,7 +9,15 @@ import { Skeleton, Table } from 'antd'
 import { ListviewProps, FilterbarProps } from '@/listview.type'
 
 // utils
-import request from '@/utils/request'
+import { warn } from '@/utils/debug'
+import fetch from '@/utils/fetch'
+import { dataMapping } from '@/utils/utils'
+
+const DEFAULT_PROPS = {
+  validateResponse: (response): boolean => (response.is_success ? true : false),
+  resolveResponseErrorMessage: (response): string => response?.error_info?.msg || 'unknown error',
+  contentDataMap: { items: 'result.items', total: 'result.total_count' }
+}
 
 const Listview: FC<ListviewProps> = function({
   headerTitle,
@@ -18,7 +26,7 @@ const Listview: FC<ListviewProps> = function({
   fullHeight = true,
   autoload = true,
   requestUrl,
-  requestMethod = 'get',
+  requestMethod = 'GET',
   requestConfig,
   requestHandler,
   transformRequestData,
@@ -44,32 +52,30 @@ const Listview: FC<ListviewProps> = function({
   const [contentData, setContentData] = useState([])
   const [total, setTotal] = useState(0)
 
-  useEffect(() => {
-    setLoading(false)
+  if (!requestUrl && !requestHandler) {
+    warn('unavailable requestUrl & requestHandler ，unable to reqeust')
+  } else {
+    useEffect(() => {
+      setLoading(false)
 
-    // auto fetch table data
-    if (autoload) {
-      request(
-        {
-          url: requestUrl,
-          method: requestMethod
-        },
-        requestHandler,
-        transformRequestData,
-        validateResponse,
-        resolveResponseErrorMessage,
-        transformResponseData,
-        contentDataMap
-      ).then((res) => {
-        if (typeof res === 'string') {
-          // contentMessage to do
-        } else {
-          setContentData(res.items)
-          setTotal(res.total)
-        }
-      })
-    }
-  }, [])
+      if (autoload) {
+        fetch(requestUrl || '', requestMethod, requestConfig)
+          .then((res) => {
+            // TO DO
+            /**
+             * transformResponseData
+             * validateResponse
+             * contentDataMap
+             *  */
+            setContentData([])
+            setTotal(0)
+          })
+          .catch((err) => {
+            resolveResponseErrorMessage?.(err)
+          })
+      }
+    }, [])
+  }
 
   const filterBarProps: FilterbarProps = {
     filterButtons,
@@ -89,7 +95,9 @@ const Listview: FC<ListviewProps> = function({
     showTotal: function(total): string {
       return `Total：${total}`
     },
-    onChange: function(page, pageSize): void {}
+    onChange: function(page, pageSize): void {
+      // request
+    }
   } : {}
 
   return (
@@ -99,7 +107,12 @@ const Listview: FC<ListviewProps> = function({
       <div className='listview__main'>
         <Filterbar {...filterBarProps} />
         <Skeleton loading={loading} active>
-          <Table dataSource={contentData} pagination={pagination}></Table>
+          <Table
+            columns={tableColumns}
+            dataSource={contentData}
+            pagination={pagination}
+            bordered
+          ></Table>
         </Skeleton>
       </div>
     </div>

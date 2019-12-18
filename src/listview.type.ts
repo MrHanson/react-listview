@@ -1,6 +1,7 @@
 /* eslint-disable */
 
-import { ReactNode } from 'react'
+import { AxiosRequestConfig, Method } from 'axios'
+import { ColumnProps } from 'antd/es/table'
 
 export interface ListviewHeaderProps {
   title: string
@@ -27,10 +28,10 @@ export interface ListviewProps {
   requestUrl?: string
 
   /** 支持 Axios 所有支持的请求方法。 default: 'get' */
-  requestMethod?: RequestMethod
+  requestMethod?: Method
 
   /** 兼容 Axios 的所有除了 cancelToken 之外的 requestConfig 配置。 default: {} */
-  requestConfig?: object
+  requestConfig?: AxiosRequestConfig
 
   /** 自定义请求方法，需要返回 Promise ，以返回的内容交由 `validateResponse` 进行验证 */
   requestHandler?: RequestHandler
@@ -69,7 +70,7 @@ export interface ListviewProps {
   showFilterReset?: boolean
 
   /** 表格列配置。 default: [] */
-  tableColumns?: TableColumn[]
+  tableColumns?: ColumnProps<any>[]
 
   /** 可传入 Antd Table 的所有支持属性。 default: {} */
   tableProps?: { [k: string]: any }
@@ -118,28 +119,13 @@ export interface FilterbarFormProps {
   showFilterReset?: boolean
 }
 
-export interface TableColumn {
-  dataIndex: string // column key
-  defaultFilteredValue: string[]
-  defaultSortOrder: 'ascend' | 'descend'
-  align: string
-  ellipsis: boolean
-  className: string
-  colSpan: number
-  filterDropdown: ReactNode
-  filterDropdownVisible: boolean
-  filtered: boolean
-  filteredValue: string[]
-  filterIcon: ReactNode
-}
-
 export interface Pagination {
   position: 'top' | 'bottom' | 'both'
 }
 
 export interface TableColumnGroup {
   title: string
-  tableColumns: TableColumn[]
+  tableColumns: ColumnProps<any>[]
 }
 
 export interface FilterButton {
@@ -207,8 +193,6 @@ interface SelectOption {
   className: string
   children?: SelectOption[]
 }
-
-export type RequestMethod = 'get' | 'delete' | 'head' | 'options' | 'post' | 'put' | 'patch'
 
 export type RequestHandler = (requestData?: object) => Promise<any>
 
