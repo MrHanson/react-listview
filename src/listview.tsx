@@ -8,6 +8,9 @@ import { Skeleton, Table } from 'antd'
 // types
 import { ListviewProps, FilterbarProps } from '@/listview.type'
 
+// hooks
+import useAxios from '@/hooks/useAxios'
+
 // utils
 import { warn } from '@/utils/debug'
 import fetch from '@/utils/fetch'
@@ -59,20 +62,18 @@ const Listview: FC<ListviewProps> = function({
       setLoading(false)
 
       if (autoload) {
-        fetch(requestUrl || '', requestMethod, requestConfig)
-          .then((res) => {
-            // TO DO
-            /**
-             * transformResponseData
-             * validateResponse
-             * contentDataMap
-             *  */
-            setContentData([])
-            setTotal(0)
-          })
-          .catch((err) => {
-            resolveResponseErrorMessage?.(err)
-          })
+        useAxios(
+          requestUrl || '',
+          requestMethod,
+          requestConfig || {},
+          requestHandler,
+          transformRequestData,
+          transformResponseData,
+          contentDataMap,
+          contentMessage,
+          validateResponse,
+          resolveResponseErrorMessage
+        )
       }
     }, [])
   }
