@@ -1,9 +1,9 @@
-import Axios, { AxiosRequestConfig, Method } from 'Axios'
+import Axios, { AxiosRequestConfig, Method, Canceler } from 'Axios'
 import { merge } from 'lodash'
 
-let _requestCancelToken
+let _requestCancelToken: Canceler
 async function fetch(
-  requestUrl: string,
+  requestUrl?: string,
   reqeustMethod: Method = 'get',
   reqeustConfig?: AxiosRequestConfig
   // eslint-disable-next-line
@@ -18,7 +18,7 @@ async function fetch(
   }
 
   const finalRequestConfig = merge(_requestConfig, reqeustConfig)
-  finalRequestConfig.cancelToken = new Axios.CancelToken((cancel) => {
+  finalRequestConfig.cancelToken = new Axios.CancelToken(cancel => {
     _requestCancelToken = cancel
   })
 

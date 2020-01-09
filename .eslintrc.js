@@ -14,7 +14,7 @@ module.exports = {
       }
     ],
     '@typescript-eslint/member-delimiter-style': 'off',
-    '@typescript-eslint/indent': ['error', 2],
+    '@typescript-eslint/no-explicit-any': 'off',
     'react/prop-types': 'off'
   },
   overrides: [

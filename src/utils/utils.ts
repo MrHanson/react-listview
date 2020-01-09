@@ -1,3 +1,4 @@
+import { isPlainObject, isEmpty } from 'lodash'
 import get from './getValue'
 
 /**
@@ -18,7 +19,7 @@ import get from './getValue'
  */
 export function dataMapping(data = {}, dataMap = {}): object {
   const result = {}
-  Object.keys(dataMap).forEach((key) => {
+  Object.keys(dataMap).forEach(key => {
     try {
       const dataKey = key.toString()
       const dataValue = get(data, dataMap[key])
@@ -27,4 +28,13 @@ export function dataMapping(data = {}, dataMap = {}): object {
   })
 
   return result
+}
+
+export function isValidateFieldValues(val: any): boolean {
+  return !(
+    val === null ||
+    val === undefined ||
+    val === '' ||
+    ((Array.isArray(val) || isPlainObject(val)) && isEmpty(val))
+  )
 }

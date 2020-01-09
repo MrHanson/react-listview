@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 import { AxiosRequestConfig, Method } from 'axios'
 import { ColumnProps } from 'antd/es/table'
 
@@ -153,6 +151,10 @@ export interface FilterField {
 
   /** 是否显示为禁用状态 */
   disabled?: boolean
+
+  get?: Function
+
+  key?: string
 
   /** 类型为 select 或 multipleSelect 时的选项配置 */
   options?:

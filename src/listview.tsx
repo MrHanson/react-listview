@@ -6,20 +6,53 @@ import Filterbar from '@/components/filterbar'
 import { Skeleton, Table } from 'antd'
 
 // types
-import { ListviewProps, FilterbarProps } from '@/listview.type'
+import { ListviewProps, FilterField, FilterbarProps } from '@/listview.type'
 
 // hooks
 import useAxios from '@/hooks/useAxios'
 
 // utils
-import { warn } from '@/utils/debug'
-import fetch from '@/utils/fetch'
-import { dataMapping } from '@/utils/utils'
+import { cloneDeep, omitBy, isPlainObject, merge } from 'lodash'
+import { warn, error } from '@/utils/debug'
+import { dataMapping, isValidateFieldValues } from '@/utils/utils'
 
 const DEFAULT_PROPS = {
   validateResponse: (response): boolean => (response.is_success ? true : false),
   resolveResponseErrorMessage: (response): string => response?.error_info?.msg || 'unknown error',
-  contentDataMap: { items: 'result.items', total: 'result.total_count' }
+  contentDataMap: { items: 'result.items', total: 'result.total_count' },
+  skeletonProps: { title: false, active: true }
+}
+
+// prettier-ignore
+function resolveFilterModelGetters(fields: FilterField[], getters = {}): { [k: string]: any; } {
+  return fields.reduce((result, field) => {
+    if (Array.isArray(field)) {
+      resolveFilterModelGetters(field, getters)
+    } else {
+      if (field.get && field.model) {
+        result[field.model] = field.get
+      }
+    }
+    return result
+  }, getters)
+}
+
+// prettier-ignore
+function applyFieldGetter(payloadData: { [k: string]: any }, getters: { [k: string]: any }): void {
+  Object.keys(getters).forEach(key => {
+    try {
+      payloadData[key] = getters[key](payloadData[key], payloadData)
+    } catch (e) {
+      error(
+        [
+          `FilterFields '${key}' getter error:`,
+          `  - Value: ${JSON.stringify(payloadData[key])}`,
+          `  - Getter: ${getters[key].toString()}`,
+          `  - Error: ${e}`
+        ].join('\n')
+      )
+    }
+  })
 }
 
 const Listview: FC<ListviewProps> = function({
@@ -53,27 +86,52 @@ const Listview: FC<ListviewProps> = function({
 }: ListviewProps) {
   const [loading, setLoading] = useState(true)
   const [contentData, setContentData] = useState([])
+  const [currentPageSize, setCurrentPageSize] = useState(pageSize)
+  const [currentPage, setCurrentPage] = useState(1)
   const [total, setTotal] = useState(0)
+  const [tableSelection, setTableSelection] = useState([])
 
   if (!requestUrl && !requestHandler) {
-    warn('unavailable requestUrl & requestHandler ，unable to reqeust')
+    warn('unavailable requestUrl & requestHandler, unable to reqeust')
   } else {
     useEffect(() => {
-      setLoading(false)
+      let payloadData = cloneDeep(filterModel)
+
+      const filterModelGetters = resolveFilterModelGetters(filterFields)
+      applyFieldGetter(payloadData, filterModelGetters)
+
+      // filter invalidate value
+      payloadData = omitBy(payloadData, val => {
+        !isValidateFieldValues(val)
+      })
+
+      let indexKey = 'page_index'
+      let sizeKey = 'page_size'
+      if (usePage) {
+        if (isPlainObject(usePage)) {
+          indexKey = usePage['pageIndex'] || 'page_index'
+          sizeKey = usePage['pageSize'] || 'page_size'
+        }
+        payloadData[indexKey] = currentPage
+        payloadData[sizeKey] = currentPageSize
+      } else {
+        delete payloadData[indexKey]
+        delete payloadData[sizeKey]
+      }
+
+      const requestData = transformRequestData?.(payloadData)
+      if (requestData === false) {
+        setLoading(false)
+      }
 
       if (autoload) {
-        useAxios(
-          requestUrl || '',
-          requestMethod,
-          requestConfig || {},
-          requestHandler,
-          transformRequestData,
-          transformResponseData,
-          contentDataMap,
-          contentMessage,
-          validateResponse,
-          resolveResponseErrorMessage
-        )
+        // prettier-ignore
+        const [response, loadingStatus] = useAxios(requestUrl, requestMethod, requestConfig, requestHandler)
+
+        /* To do: validateResponse, resolveResponseErrorMessage, transformResponseData, contentDataMap, contentMessage  */
+
+        setLoading(loadingStatus)
+        setContentData(response)
       }
     }, [])
   }
@@ -86,12 +144,22 @@ const Listview: FC<ListviewProps> = function({
     showFilterReset
   }
 
+  let rowSelection = {}
+  if (tableSelectionColumn === true) {
+    rowSelection = {
+      selectedRowKeys: tableSelection,
+      onChange: (selectedRowKeys, selectedRows): void => {
+        setTableSelection(selectedRows)
+      }
+    }
+  }
+
   // prettier-ignore
   const pagination = usePage ? {
     showSizeChanger: true,
     showQuickJumper: true,
     pageSizeOptions,
-    pageSize,
+    currentPageSize,
     total,
     showTotal: function(total): string {
       return `Total：${total}`
@@ -107,14 +175,14 @@ const Listview: FC<ListviewProps> = function({
 
       <div className='listview__main'>
         <Filterbar {...filterBarProps} />
-        <Skeleton loading={loading} active>
-          <Table
-            columns={tableColumns}
-            dataSource={contentData}
-            pagination={pagination}
-            bordered
-          ></Table>
-        </Skeleton>
+        <Table
+          loading={loading}
+          rowSelection={rowSelection}
+          columns={tableColumns}
+          dataSource={contentData}
+          pagination={pagination}
+          bordered
+        ></Table>
       </div>
     </div>
   )

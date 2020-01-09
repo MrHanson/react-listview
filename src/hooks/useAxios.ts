@@ -1,41 +1,35 @@
 import { useState, useEffect } from 'react'
 import { AxiosRequestConfig, Method } from 'axios'
-import {
-  RequestHandler,
-  TransformRequestData,
-  TransformResponseData,
-  ContentDataMap,
-  ValidateResponse,
-  ResolveResponseErrorMessage
-} from '@/listview.type'
+import { RequestHandler } from '@/listview.type'
 
 import fetch from '@/utils/fetch'
 
 export default function useAxios(
-  requestUrl: string,
-  requestMethod: Method,
-  requestConfig: AxiosRequestConfig,
-  requestHandler?: RequestHandler,
-  transformRequestData?: TransformRequestData,
-  transformResponseData?: TransformResponseData,
-  contentDataMap?: ContentDataMap,
-  contentMessage: null | string = null,
-  validateResponse?: ValidateResponse,
-  resolveResponseErrorMessage?: ResolveResponseErrorMessage
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  requestUrl?: string,
+  requestMethod: Method = 'get',
+  requestConfig?: AxiosRequestConfig,
+  requestHandler?: RequestHandler
 ): any {
   const [response, setResponse] = useState(null)
+  const [loadingStatus, setLoadingStatus] = useState(true)
+
   useEffect(() => {
     if (requestHandler) {
+      setLoadingStatus(true)
       requestHandler().then(res => {
+        setLoadingStatus(false)
+        setResponse(res)
+      })
+    } else if (requestUrl) {
+      setLoadingStatus(true)
+      fetch(requestUrl, requestMethod, requestConfig).then(res => {
+        setLoadingStatus(false)
         setResponse(res)
       })
     } else {
-      fetch(requestUrl, requestMethod, requestConfig).then(res => {
-        setResponse(res)
-      })
+      setLoadingStatus(false)
     }
-  }, [response])
+  }, [response, loadingStatus])
 
-  return response
+  return [response, loadingStatus]
 }
