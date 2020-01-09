@@ -4,15 +4,24 @@ import FilterbarForm from './filterbar-form'
 
 const Filterbar: FC<FilterbarProps> = function({
   filterButtons,
-  filterFields,
-  filterModel,
+  filterFields = [],
+  filterModel = {},
   filterbarFold = true,
   showFilterSearch = true,
-  showFilterReset
+  showFilterReset = true
 }: FilterbarProps) {
+  const filterbarFormProps = {
+    filterFields,
+    filterModel,
+    filterbarFold,
+    showFilterSearch,
+    showFilterReset
+  }
+
   return (
     <div className='filterbar'>
-      <FilterbarForm />
+      {/* To do: render filterButtons */}
+      <FilterbarForm {...filterbarFormProps} />
     </div>
   )
 }

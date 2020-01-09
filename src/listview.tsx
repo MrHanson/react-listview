@@ -3,7 +3,7 @@ import React, { FC, useState, useEffect } from 'react'
 // components
 import ListviewHeader from '@/components/listview-header'
 import Filterbar from '@/components/filterbar'
-import { Skeleton, Table } from 'antd'
+import { Table } from 'antd'
 
 // types
 import { ListviewProps, FilterField, FilterbarProps } from '@/listview.type'
@@ -15,13 +15,6 @@ import useAxios from '@/hooks/useAxios'
 import { cloneDeep, omitBy, isPlainObject, merge } from 'lodash'
 import { warn, error } from '@/utils/debug'
 import { dataMapping, isValidateFieldValues } from '@/utils/utils'
-
-const DEFAULT_PROPS = {
-  validateResponse: (response): boolean => (response.is_success ? true : false),
-  resolveResponseErrorMessage: (response): string => response?.error_info?.msg || 'unknown error',
-  contentDataMap: { items: 'result.items', total: 'result.total_count' },
-  skeletonProps: { title: false, active: true }
-}
 
 // prettier-ignore
 function resolveFilterModelGetters(fields: FilterField[], getters = {}): { [k: string]: any; } {
@@ -67,10 +60,10 @@ const Listview: FC<ListviewProps> = function({
   requestHandler,
   transformRequestData,
   transformResponseData,
-  contentDataMap,
+  contentDataMap = { items: 'result.items', total: 'result.total_count' },
   contentMessage = null,
-  validateResponse,
-  resolveResponseErrorMessage,
+  validateResponse = (response): boolean => (response.is_success ? true : false),
+  resolveResponseErrorMessage = (response): string => response?.error_info?.msg || 'unknown error',
   filterButtons = [],
   filterFields = [],
   filterModel = {},
@@ -144,6 +137,7 @@ const Listview: FC<ListviewProps> = function({
     showFilterReset
   }
 
+  /* set default tableProps & default tableEvents */
   let rowSelection = {}
   if (tableSelectionColumn === true) {
     rowSelection = {
@@ -171,8 +165,7 @@ const Listview: FC<ListviewProps> = function({
 
   return (
     <div className='listview'>
-      {headerTitle && headerNav ? <ListviewHeader title={headerTitle} nav={headerNav} /> : ''}
-
+      <ListviewHeader title={headerTitle} nav={headerNav} />
       <div className='listview__main'>
         <Filterbar {...filterBarProps} />
         <Table
