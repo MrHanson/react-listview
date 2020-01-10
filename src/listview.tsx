@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect } from 'react'
+import React, { FC, useState, useEffect, useRef } from 'react'
 
 // components
 import ListviewHeader from '@/components/listview-header'
@@ -15,6 +15,7 @@ import useAxios from '@/hooks/useAxios'
 import { cloneDeep, omitBy, isPlainObject, merge } from 'lodash'
 import { warn, error } from '@/utils/debug'
 import { dataMapping, isValidateFieldValues } from '@/utils/utils'
+import { TableEventListeners } from 'antd/es/table'
 
 // prettier-ignore
 function resolveFilterModelGetters(fields: FilterField[], getters = {}): { [k: string]: any; } {
@@ -71,18 +72,21 @@ const Listview: FC<ListviewProps> = function({
   showFilterReset = true,
   tableColumns = [],
   tableProps,
-  tableEvents,
-  tableSelectionColumn = true,
+  rowSelection = { type: 'checkbox', fixed: true },
   usePage = true,
+  pagination,
   pageSizeOptions = ['20', '50', '100'],
   pageSize = 20
 }: ListviewProps) {
+  // state
   const [loading, setLoading] = useState(true)
   const [contentData, setContentData] = useState([])
   const [currentPageSize, setCurrentPageSize] = useState(pageSize)
   const [currentPage, setCurrentPage] = useState(1)
   const [total, setTotal] = useState(0)
-  const [tableSelection, setTableSelection] = useState([])
+
+  // ref
+  const antTblRef = useRef(null)
 
   if (!requestUrl && !requestHandler) {
     warn('unavailable requestUrl & requestHandler, unable to reqeust')
@@ -137,31 +141,45 @@ const Listview: FC<ListviewProps> = function({
     showFilterReset
   }
 
-  /* set default tableProps & default tableEvents */
-  let rowSelection = {}
-  if (tableSelectionColumn === true) {
-    rowSelection = {
-      selectedRowKeys: tableSelection,
-      onChange: (selectedRowKeys, selectedRows): void => {
-        setTableSelection(selectedRows)
-      }
-    }
-  }
-
+  // merge default pagination with custom pagination
   // prettier-ignore
-  const pagination = usePage ? {
+  const _pagination = usePage ? merge({
+    position: 'bottom',
+    defaultPageSize: pageSize,
     showSizeChanger: true,
     showQuickJumper: true,
     pageSizeOptions,
-    currentPageSize,
+    simple: false,
+    size: 'small',
     total,
     showTotal: function(total): string {
       return `Total：${total}`
     },
     onChange: function(page, pageSize): void {
-      // request
+      setCurrentPage(page)
+      setCurrentPageSize(pageSize)
+
+      // prettier-ignore
+      const [response, loadingStatus] = useAxios(requestUrl, requestMethod, requestConfig, requestHandler)
+
+      /* To do: validateResponse, resolveResponseErrorMessage, transformResponseData, contentDataMap, contentMessage  */
+
+      setLoading(loadingStatus)
+      setContentData(response)
     }
-  } : {}
+  }, pagination) : {}
+
+  // merge default tableProps with custom tableProps
+  const _tableProps = merge(
+    {
+      onRow: (record): TableEventListeners => ({
+        onClick: (): void => {
+          console.log(antTblRef.current)
+        }
+      })
+    },
+    tableProps
+  )
 
   return (
     <div className='listview'>
@@ -169,12 +187,14 @@ const Listview: FC<ListviewProps> = function({
       <div className='listview__main'>
         <Filterbar {...filterBarProps} />
         <Table
+          ref={antTblRef}
           loading={loading}
           rowSelection={rowSelection}
           columns={tableColumns}
           dataSource={contentData}
-          pagination={pagination}
+          pagination={_pagination}
           bordered
+          {..._tableProps}
         ></Table>
       </div>
     </div>

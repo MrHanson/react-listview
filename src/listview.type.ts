@@ -1,5 +1,5 @@
 import { AxiosRequestConfig, Method } from 'axios'
-import { ColumnProps } from 'antd/es/table'
+import { ColumnProps, TableProps, TableRowSelection, PaginationConfig } from 'antd/es/table'
 
 export interface ListviewHeaderProps {
   title: string
@@ -71,19 +71,10 @@ export interface ListviewProps {
   tableColumns?: ColumnProps<any>[]
 
   /** 可传入 Antd Table 的所有支持属性。 default: {} */
-  tableProps?: { [k: string]: any }
-
-  /** 可传入 Antd Table 的所有支持事件。 default: {} */
-  tableEvents?: { [k: string]: () => void }
+  tableProps?: TableProps<any>
 
   /** 是否开启表格行选择功能，传入 'single' 为表格单选效果。 default: true */
-  tableSelectionColumn?:
-    | boolean
-    | string
-    | {
-        type: string
-        selectable: (row: any, index: number) => boolean
-      }
+  rowSelection?: TableRowSelection<any>
 
   /** 是否开启底部分页功能，或配置请求时分页参数的键名。 default: true */
   usePage?:
@@ -92,6 +83,8 @@ export interface ListviewProps {
         pageIndex: string
         pageSize: string
       }
+
+  pagination: PaginationConfig
 
   /** 分页“每页数量”可选值。 default: ['20', '50', '100'] */
   pageSizeOptions?: string[]
