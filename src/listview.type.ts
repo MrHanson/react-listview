@@ -1,5 +1,5 @@
 import { AxiosRequestConfig, Method } from 'axios'
-import { ColumnProps, TableProps, TableRowSelection, PaginationConfig } from 'antd/es/table'
+import { TableProps, ColumnProps, TableRowSelection, PaginationConfig } from 'antd/es/table'
 
 export interface ListviewHeaderProps {
   title: string
@@ -119,17 +119,27 @@ export interface TableColumnGroup {
   tableColumns: ColumnProps<any>[]
 }
 
-export interface FilterButton {
-  disabled: boolean
-  ghost: boolean
-  href: string
-  target: string // href启用时有效
-  htmlType: string // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#attr-type
-  icon: string
-  loading: boolean | /* delay */ number
-  shape: 'circle' | 'round'
-  type: 'primary' | 'dashed' | 'danger' | 'link'
-  onClick: (event: Event) => void
+export type FilterButton = AntButton | AntButtonGroup
+
+export interface AntButton {
+  text?: string
+  disabled?: boolean
+  ghost?: boolean
+  href?: string
+  target?: string // href启用时有效
+  htmlType?: 'button' | 'reset' | 'submit' // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#attr-type
+  icon?: string
+  loading?: boolean | { delay: number }
+  shape?: 'circle' | 'round'
+  size?: 'small' | 'default' | 'large'
+  type?: 'link' | 'default' | 'ghost' | 'primary' | 'dashed' | 'danger'
+  onClick?: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void
+  block?: boolean
+}
+
+export interface AntButtonGroup {
+  size?: 'small' | 'default' | 'large'
+  children?: AntButton[]
 }
 
 export interface FilterField {

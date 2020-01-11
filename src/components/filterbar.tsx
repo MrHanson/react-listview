@@ -1,9 +1,34 @@
-import React, { FC } from 'react'
-import { FilterbarProps } from '@/listview.type'
+import React, { FC, ReactNode } from 'react'
+import { FilterbarProps, AntButton } from '@/listview.type'
+
 import FilterbarForm from './filterbar-form'
+import { Button } from 'antd'
+
+const renderButton = (item: AntButton): ReactNode => {
+  // prettier-ignore
+  const { text, disabled, ghost, href, target, htmlType, icon, loading, shape, size, type, onClick, block } = item
+  return (
+    <Button
+      disabled={disabled}
+      ghost={ghost}
+      href={href}
+      target={target}
+      htmlType={htmlType}
+      icon={icon}
+      loading={loading}
+      shape={shape}
+      size={size}
+      type={type}
+      onClick={onClick}
+      block={block}
+    >
+      {text}
+    </Button>
+  )
+}
 
 const Filterbar: FC<FilterbarProps> = function({
-  filterButtons,
+  filterButtons = [],
   filterFields = [],
   filterModel = {},
   filterbarFold = true,
@@ -20,7 +45,19 @@ const Filterbar: FC<FilterbarProps> = function({
 
   return (
     <div className='filterbar'>
-      {/* To do: render filterButtons */}
+      {filterButtons
+        .map((item: any) => {
+          if (Array.isArray(item.children)) {
+            const ButtonGroup = Button.Group
+            return (
+              <ButtonGroup size={item.size}>
+                {item.children.map(child => renderButton(child))}
+              </ButtonGroup>
+            )
+          }
+          return renderButton(item)
+        })
+        .filter(item => !!item)}
       <FilterbarForm {...filterbarFormProps} />
     </div>
   )
