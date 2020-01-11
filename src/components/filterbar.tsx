@@ -47,7 +47,7 @@ const Filterbar: FC<FilterbarProps> = function({
     <div className='filterbar'>
       {filterButtons
         .map((item: any) => {
-          if (Array.isArray(item.children)) {
+          if (item && Array.isArray(item.children)) {
             const ButtonGroup = Button.Group
             return (
               <ButtonGroup size={item.size}>

@@ -64,8 +64,12 @@ export interface ListviewProps {
   /** 是否显示搜索栏的“提交”按钮。 default: true */
   showFilterSearch?: boolean
 
+  filterSearchText?: string
+
   /** 是否显示搜索栏的“重置”按钮。 default: true */
   showFilterReset?: boolean
+
+  filterResetText?: string
 
   /** 表格列配置。 default: [] */
   tableColumns?: ColumnProps<any>[]
