@@ -55,7 +55,7 @@ const Filterbar: FC<FilterbarProps> = function({
               </ButtonGroup>
             )
           }
-          return renderButton(item)
+          return item && renderButton(item)
         })
         .filter(item => !!item)}
       <FilterbarForm {...filterbarFormProps} />
