@@ -1,12 +1,13 @@
 import { AxiosRequestConfig, Method } from 'axios'
 import { TableProps, ColumnProps, TableRowSelection, PaginationConfig } from 'antd/es/table'
+import { ReactNode, MutableRefObject } from 'react'
 
 export interface ListviewHeaderProps {
   title: string
   nav: Array<any>
 }
 
-export interface ListviewProps {
+export interface ListviewProps extends FilterbarProps {
   /** 设置页面顶部通栏内的页面标题文本。 default: '' */
   headerTitle: string
 
@@ -52,25 +53,6 @@ export interface ListviewProps {
   /** 解析错误提示信息 */
   resolveResponseErrorMessage?: ResolveResponseErrorMessage
 
-  /** 搜索栏左侧按钮配置。 default: [] */
-  filterButtons?: FilterButton[]
-
-  /** 搜索栏搜索字段配置。 default: [] */
-  filterFields?: FilterField[]
-
-  /** 可选，存储搜索栏的搜索条件值。 default: {} */
-  filterModel?: { [k: string]: any }
-
-  /** 是否显示搜索栏的“提交”按钮。 default: true */
-  showFilterSearch?: boolean
-
-  filterSearchText?: string
-
-  /** 是否显示搜索栏的“重置”按钮。 default: true */
-  showFilterReset?: boolean
-
-  filterResetText?: string
-
   /** 表格列配置。 default: [] */
   tableColumns?: ColumnProps<any>[]
 
@@ -97,26 +79,23 @@ export interface ListviewProps {
   pageSize?: number
 }
 
-export interface FilterbarProps {
+export interface FilterbarProps extends FilterbarFormProps {
   filterButtons?: FilterButton[]
-  filterFields?: FilterField[]
-  filterModel?: { [k: string]: any }
   filterbarFold?: boolean
   showFilterSearch?: boolean
+  filterSearchText?: string
   showFilterReset?: boolean
+  filterResetText?: string
+  prependSubmitSlot?: (state: any) => ReactNode
+  appendSubmitSlot?: (state: any) => ReactNode
 }
 
 export interface FilterbarFormProps {
-  filterFields: FilterField[]
+  filterFields: (FilterField | RenderReactDomFn)[]
   filterModel: { [k: string]: any }
-  filterbarFold?: boolean
-  showFilterSearch?: boolean
-  showFilterReset?: boolean
 }
 
-export interface Pagination {
-  position: 'top' | 'bottom' | 'both'
-}
+export type RenderReactDomFn = (nope: never) => ReactNode
 
 export interface TableColumnGroup {
   title: string
@@ -148,7 +127,7 @@ export interface AntButtonGroup {
 
 export interface FilterField {
   /** 字段控件类型 */
-  type?: FieldType
+  type: FieldType
 
   /** 字段提交参数名 */
   model?: string
@@ -159,7 +138,7 @@ export interface FilterField {
   /** 是否显示为禁用状态 */
   disabled?: boolean
 
-  get?: Function
+  get?: (val: any) => any
 
   key?: string
 
@@ -172,27 +151,21 @@ export interface FilterField {
   /** 可传入对应控件原始的 props */
   componentProps?: { [k: string]: any }
 
-  /** 可传入对应控件原始的 events */
-  componentEvents?: { [k: string]: () => void }
-
   /** 可传入对应控件原始的 children */
   componentChildren?: { [k: string]: any }
+
+  render?: (field: FilterField) => ReactNode
 }
 
 type FieldType =
-  | 'label'
-  | 'text'
-  | 'number'
+  | 'autoComplete'
   | 'select'
-  | 'multipleSelect'
-  | 'date'
-  | 'dateRange'
-  | 'timeSelect'
-  | 'timePicker'
-  | 'timePickerRange'
-  | 'dateTime'
-  | 'dateTimeRange'
   | 'cascader'
+  | 'datePicker'
+  | 'input'
+  | 'inputNumber'
+  | 'mentions'
+  | 'treeSelect'
 
 interface SelectOption {
   disabled: boolean

@@ -69,7 +69,12 @@ const Listview: FC<ListviewProps> = function({
   filterFields = [],
   filterModel = {},
   showFilterSearch = true,
+  filterSearchText = 'Search',
   showFilterReset = true,
+  filterResetText = 'Reset',
+  prependSubmitSlot,
+  appendSubmitSlot,
+  filterbarFold = true,
   tableColumns = [],
   tableProps,
   rowSelection = { type: 'checkbox', fixed: true },
@@ -138,7 +143,12 @@ const Listview: FC<ListviewProps> = function({
     filterFields,
     filterModel,
     showFilterSearch,
-    showFilterReset
+    filterSearchText,
+    showFilterReset,
+    filterResetText,
+    prependSubmitSlot,
+    appendSubmitSlot,
+    filterbarFold
   }
 
   // merge default pagination with custom pagination
