@@ -91,11 +91,9 @@ export interface FilterbarProps extends FilterbarFormProps {
 }
 
 export interface FilterbarFormProps {
-  filterFields: (FilterField | RenderReactDomFn)[]
+  filterFields: FilterField[]
   filterModel: { [k: string]: any }
 }
-
-export type RenderReactDomFn = (nope: never) => ReactNode
 
 export interface TableColumnGroup {
   title: string
@@ -125,9 +123,26 @@ export interface AntButtonGroup {
   children?: AntButton[]
 }
 
-export interface FilterField {
+export interface FilterField extends ComponentChild {
+  render?: (field: FilterField) => ReactNode
+}
+
+type FieldType =
+  | 'autoComplete'
+  | 'cascader'
+  | 'select'
+  | 'datePicker'
+  | 'monthPicker'
+  | 'rangePicker'
+  | 'weekPicker'
+  | 'input'
+  | 'inputNumber'
+  | 'mentions'
+  | 'treeSelect'
+
+interface ComponentChild {
   /** 字段控件类型 */
-  type: FieldType
+  type?: FieldType
 
   /** 字段提交参数名 */
   model?: string
@@ -138,41 +153,29 @@ export interface FilterField {
   /** 是否显示为禁用状态 */
   disabled?: boolean
 
+  placeholder?: string
+
+  // placeholder for rangePicker
+  placeholderPair?: [string, string]
+
   get?: (val: any) => any
 
   key?: string
 
-  /** 类型为 select 或 multipleSelect 时的选项配置 */
-  options?:
-    | SelectOption[]
-    | Promise<SelectOption[]>
-    | ((done: (options: SelectOption[]) => void) => void)
+  /** 类型为 select 或 mentions 时的选项配置 */
+  options?: SelectOption[]
 
   /** 可传入对应控件原始的 props */
   componentProps?: { [k: string]: any }
 
-  /** 可传入对应控件原始的 children */
-  componentChildren?: { [k: string]: any }
-
-  render?: (field: FilterField) => ReactNode
+  onChange?: (val: any) => void
 }
 
-type FieldType =
-  | 'autoComplete'
-  | 'select'
-  | 'cascader'
-  | 'datePicker'
-  | 'input'
-  | 'inputNumber'
-  | 'mentions'
-  | 'treeSelect'
-
-interface SelectOption {
-  disabled: boolean
+export interface SelectOption {
+  disabled?: boolean
   title: string
   key: string
-  value: string | number
-  className: string
+  value: string
   children?: SelectOption[]
 }
 
