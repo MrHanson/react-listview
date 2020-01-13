@@ -6,12 +6,30 @@ import { AutoComplete, Select, Cascader, DatePicker, Input, InputNumber, Mention
 
 import { isFunction, camelCase } from 'lodash'
 
-import FIELD_KEYS_MAP from '@/constant/fieldKeyMap'
-
 const getFieldComponent = (key: string): ReactNode => {
   if (key) {
     const fieldKey = camelCase(key)
-    return FIELD_KEYS_MAP[fieldKey]
+    let component
+    switch (key) {
+      case 'autoComplete':
+
+      case 'select':
+
+      case 'cascader':
+
+      case 'datePicker':
+
+      case 'input':
+
+      case 'inputNumber':
+
+      case 'mentions':
+
+      case 'treeSelect':
+        break
+    }
+
+    return component
   }
   return null
 }
