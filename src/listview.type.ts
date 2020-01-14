@@ -1,6 +1,6 @@
 import { AxiosRequestConfig, Method } from 'axios'
 import { TableProps, ColumnProps, TableRowSelection, PaginationConfig } from 'antd/es/table'
-import { ReactNode, MutableRefObject } from 'react'
+import { ReactNode } from 'react'
 
 export interface ListviewHeaderProps {
   title: string
@@ -70,7 +70,7 @@ export interface ListviewProps extends FilterbarProps {
         pageSize: string
       }
 
-  pagination: PaginationConfig
+  pagination?: PaginationConfig
 
   /** 分页“每页数量”可选值。 default: ['20', '50', '100'] */
   pageSizeOptions?: string[]
@@ -91,8 +91,8 @@ export interface FilterbarProps extends FilterbarFormProps {
 }
 
 export interface FilterbarFormProps {
-  filterFields: FilterField[]
-  filterModel: { [k: string]: any }
+  filterFields?: FilterField[]
+  filterModel?: { [k: string]: any }
 }
 
 export interface TableColumnGroup {

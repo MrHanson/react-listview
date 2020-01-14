@@ -1,7 +1,7 @@
-const merge = require('webpack-merge');
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const common = require('./webpack.common');
+const merge = require('webpack-merge')
+const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const common = require('./webpack.common')
 
 const config = {
   entry: path.join(__dirname, '../dev/app'),
@@ -15,7 +15,12 @@ const config = {
     })
   ],
   mode: 'development',
-  devtool: 'eval'
-};
+  devtool: 'eval',
+  devServer: {
+    port: 9900,
+    disableHostCheck: true,
+    before: require('../tests/mock')
+  }
+}
 
-module.exports = merge(common, config);
+module.exports = merge(common, config)
