@@ -190,7 +190,7 @@ const FilterbarForm: FC<FilterbarFormProps> = function({
   filterModel = {}
 }: FilterbarFormProps) {
   return (
-    <div>
+    <div className='filterbar__form'>
       {filterFields.map(field => {
         if (Array.isArray(field)) {
           const subFieldNodes: ReactNode[] = []

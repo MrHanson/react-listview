@@ -9,10 +9,7 @@ const config = {
       {
         test: /\.(ts)x?$/,
         exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-          options: ['lodash']
-        }
+        use: ['babel-loader']
       },
       {
         test: /\.css$/i,

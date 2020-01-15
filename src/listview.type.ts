@@ -2,18 +2,16 @@ import { AxiosRequestConfig, Method } from 'axios'
 import { TableProps, ColumnProps, TableRowSelection, PaginationConfig } from 'antd/es/table'
 import { ReactNode } from 'react'
 
+interface HeaderNav {
+  separator: string
+  children: ReactNode[]
+}
 export interface ListviewHeaderProps {
-  title: string
-  nav: Array<any>
+  headerTitle?: string
+  headerNav?: Array<string> | HeaderNav
 }
 
-export interface ListviewProps extends FilterbarProps {
-  /** 设置页面顶部通栏内的页面标题文本。 default: '' */
-  headerTitle: string
-
-  /** 设置页面顶部通栏内的面包屑。 default: [] */
-  headerNav: Array<string>
-
+export interface ListviewProps extends ListviewHeaderProps, FilterbarProps {
   /** 优先级最高，设置整体布局高度，包含顶部标题栏、搜索栏、正文区域、页码区域所有内容的高度，支持百分比。 default: null */
   height?: string | number
 

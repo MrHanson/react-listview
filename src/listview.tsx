@@ -96,46 +96,44 @@ const Listview: FC<ListviewProps> = function({
   if (!requestUrl && !requestHandler) {
     warn('unavailable requestUrl & requestHandler, unable to reqeust')
   } else {
-    useEffect(() => {
-      let payloadData = cloneDeep(filterModel)
+    let payloadData = cloneDeep(filterModel)
 
-      const filterModelGetters = resolveFilterModelGetters(filterFields)
-      applyFieldGetter(payloadData, filterModelGetters)
+    const filterModelGetters = resolveFilterModelGetters(filterFields)
+    applyFieldGetter(payloadData, filterModelGetters)
 
-      // filter invalidate value
-      payloadData = omitBy(payloadData, val => {
-        !isValidateFieldValues(val)
-      })
+    // filter invalidate value
+    payloadData = omitBy(payloadData, val => {
+      !isValidateFieldValues(val)
+    })
 
-      let indexKey = 'page_index'
-      let sizeKey = 'page_size'
-      if (usePage) {
-        if (isPlainObject(usePage)) {
-          indexKey = usePage['pageIndex'] || 'page_index'
-          sizeKey = usePage['pageSize'] || 'page_size'
-        }
-        payloadData[indexKey] = currentPage
-        payloadData[sizeKey] = currentPageSize
-      } else {
-        delete payloadData[indexKey]
-        delete payloadData[sizeKey]
+    let indexKey = 'page_index'
+    let sizeKey = 'page_size'
+    if (usePage) {
+      if (isPlainObject(usePage)) {
+        indexKey = usePage['pageIndex'] || 'page_index'
+        sizeKey = usePage['pageSize'] || 'page_size'
       }
+      payloadData[indexKey] = currentPage
+      payloadData[sizeKey] = currentPageSize
+    } else {
+      delete payloadData[indexKey]
+      delete payloadData[sizeKey]
+    }
 
-      const requestData = transformRequestData?.(payloadData)
-      if (requestData === false) {
-        setLoading(false)
-      }
+    const requestData = transformRequestData?.(payloadData)
+    if (requestData === false) {
+      setLoading(false)
+    }
 
-      if (autoload) {
-        // prettier-ignore
-        const [response, loadingStatus] = useAxios(requestUrl, requestMethod, requestConfig, requestHandler)
+    if (autoload) {
+      // prettier-ignore
+      const { response, loadingStatus } = useAxios(requestUrl, requestMethod, requestConfig, requestHandler)
 
-        /* To do: validateResponse, resolveResponseErrorMessage, transformResponseData, contentDataMap, contentMessage  */
+      /* To do: validateResponse, resolveResponseErrorMessage, transformResponseData, contentDataMap, contentMessage  */
 
-        setLoading(loadingStatus)
-        setContentData(response)
-      }
-    }, [])
+      setLoading(loadingStatus)
+      setContentData(response)
+    }
   }
 
   const filterBarProps: FilterbarProps = {

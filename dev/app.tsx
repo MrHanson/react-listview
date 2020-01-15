@@ -1,6 +1,6 @@
 import React from 'react'
 import { render } from 'react-dom'
-import Listview from '@/listview'
+import Listview from '../src/listview'
 import { ListviewProps } from '@/listview.type'
 
 const listviewConfig: ListviewProps = {

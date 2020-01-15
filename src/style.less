@@ -1,0 +1,102 @@
+@filter-gap-size: 10px;
+
+.listview {
+  overflow: auto;
+
+  .listview__header {
+    padding: 10px 20px;
+    line-height: 1.5;
+    background-color: #fff;
+    border-bottom: 1px solid #dcdfe6;
+
+    .listview__title {
+      display: inline-block;
+      padding: 0 1em 0 0;
+      margin: 0 1em 0 0;
+      font-size: 16px;
+      border-right: 1px solid #dcdfe6;
+    }
+    .listview__breadcrumb {
+      display: inline-block;
+    }
+  }
+
+  &__main {
+    padding: 10px;
+    padding-bottom: 5px;
+    background-color: #fff;
+    border: 5px solid #f0f2f5;
+
+    .listview__filterbar {
+      padding-top: @filter-gap-size;
+      margin-top: -@filter-gap-size;
+      margin-bottom: @filter-gap-size;
+
+      &::after {
+        display: table;
+        clear: both;
+        content: '';
+      }
+
+      &--fold {
+        box-sizing: content-box;
+        height: 32px;
+        overflow: hidden;
+      }
+
+      .filterbar__submit-btn .ant-btn {
+        float: left;
+      }
+
+      .filterbar__buttons,
+      .filterbar__field {
+        position: relative;
+        display: inline-block;
+        margin: 0 @filter-gap-size @filter-gap-size 0;
+        vertical-align: top;
+      }
+
+      .filterbar__field--group {
+        margin: 0;
+      }
+
+      .filterbar__buttons {
+        float: left;
+        margin-right: 0;
+      }
+
+      .filterbar__form {
+        margin-bottom: -@filter-gap-size;
+      }
+
+      .filterbar__submit {
+        float: right;
+        margin: 0;
+        margin-bottom: 10px;
+
+        &-btn {
+          display: inline-block;
+        }
+
+        &-more {
+          width: 40px;
+          padding: 0;
+          margin-left: 10px;
+          line-height: 30px;
+        }
+
+        &--nomore {
+          padding-right: 50px;
+
+          .filterbar__submit-more {
+            display: none;
+          }
+        }
+
+        &--onleft {
+          float: inherit;
+        }
+      }
+    }
+  }
+}

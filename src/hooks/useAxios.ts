@@ -14,14 +14,13 @@ export default function useAxios(
   const [loadingStatus, setLoadingStatus] = useState(true)
 
   useEffect(() => {
+    setLoadingStatus(true)
     if (requestHandler) {
-      setLoadingStatus(true)
       requestHandler().then(res => {
         setLoadingStatus(false)
         setResponse(res)
       })
     } else if (requestUrl) {
-      setLoadingStatus(true)
       fetch(requestUrl, requestMethod, requestConfig).then(res => {
         setLoadingStatus(false)
         setResponse(res)
@@ -29,7 +28,7 @@ export default function useAxios(
     } else {
       setLoadingStatus(false)
     }
-  }, [response, loadingStatus])
+  }, [])
 
-  return [response, loadingStatus]
+  return { response, loadingStatus }
 }
