@@ -1,6 +1,6 @@
 import React from 'react'
 import { render } from 'react-dom'
-import Listview from '../src/listview'
+import Listview from '@/listview'
 import { ListviewProps } from '@/listview.type'
 
 const listviewConfig: ListviewProps = {
@@ -8,4 +8,4 @@ const listviewConfig: ListviewProps = {
   headerNav: ['father', 'child']
 }
 
-render(<Listview {...listviewConfig} />, document.getElementById('root'))
+render(<Listview {...listviewConfig} />, document.querySelector('#root'))

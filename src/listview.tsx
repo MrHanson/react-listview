@@ -1,8 +1,8 @@
 import React, { FC, useState, useEffect, useRef } from 'react'
 
 // components
-import ListviewHeader from '@/components/listview-header'
-import Filterbar from '@/components/filterbar'
+import ListviewHeader from '@/components/listview-header.tsx'
+import Filterbar from '@/components/filterbar.tsx'
 import { Table } from 'antd'
 
 // types
@@ -13,9 +13,11 @@ import useAxios from '@/hooks/useAxios'
 
 // utils
 import { cloneDeep, omitBy, isPlainObject, merge } from 'lodash'
-import { warn, error } from '@/utils/debug'
-import { dataMapping, isValidateFieldValues } from '@/utils/utils'
+import { warn, error } from '@/utils/debug.ts'
+import { dataMapping, isValidateFieldValues } from '@/utils/utils.ts'
 import { TableEventListeners } from 'antd/es/table'
+
+import './style.less'
 
 // prettier-ignore
 function resolveFilterModelGetters(fields: FilterField[], getters = {}): { [k: string]: any; } {
@@ -191,7 +193,7 @@ const Listview: FC<ListviewProps> = function({
 
   return (
     <div className='listview'>
-      <ListviewHeader title={headerTitle} nav={headerNav} />
+      <ListviewHeader headerTitle={headerTitle} headerNav={headerNav} />
       <div className='listview__main'>
         <Filterbar {...filterBarProps} />
         <Table

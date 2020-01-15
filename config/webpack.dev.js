@@ -4,7 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const common = require('./webpack.common')
 
 const config = {
-  entry: path.join(__dirname, '../dev/app'),
+  entry: path.join(__dirname, '../dev/app.tsx'),
   plugins: [
     new HtmlWebpackPlugin({
       template: path.join(__dirname, './index.html'),

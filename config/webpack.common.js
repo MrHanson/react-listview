@@ -1,8 +1,13 @@
+const path = require('path')
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
+// const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 
 const config = {
   resolve: {
-    extensions: ['.ts', '.tsx', '.jsx', '.js']
+    extensions: ['.ts', '.tsx', '.jsx', '.js'],
+    alias: {
+      '@': path.resolve(__dirname, '../src')
+    }
   },
   module: {
     rules: [
