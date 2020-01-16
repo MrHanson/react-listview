@@ -102,7 +102,7 @@ const Listview: FC<ListviewProps> = function({
 
   const updateLayout = (): void => {
     const innerHeight = window.innerHeight
-    const contentHeight = innerHeight - listviewHeaderRef.current.offsetHeight
+    const contentHeight = innerHeight - (listviewHeaderRef['current']?.['offsetHeight'] || 0)
   }
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, forwardRef } from 'react'
 import { ListviewHeaderProps } from '@/listview.type'
 import { Breadcrumb } from 'antd'
 
@@ -34,4 +34,4 @@ const ListviewHeader: FC<ListviewHeaderProps> = function({
   )
 }
 
-export default ListviewHeader
+export default forwardRef(ListviewHeader)

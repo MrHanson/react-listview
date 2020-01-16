@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useState, useMemo } from 'react'
+import React, { FC, ReactNode, forwardRef, useState, useMemo } from 'react'
 import { FilterbarProps, AntButton } from '@/listview.type'
 
 import FilterbarForm from './filterbar-form'
@@ -121,4 +121,4 @@ const Filterbar: FC<FilterbarProps> = function({
   )
 }
 
-export default Filterbar
+export default forwardRef(Filterbar)
