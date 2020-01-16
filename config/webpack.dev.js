@@ -1,3 +1,4 @@
+const webpack = require('webpack')
 const merge = require('webpack-merge')
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
@@ -12,13 +13,18 @@ const config = {
         removeComments: true,
         collapseWhitespace: true
       }
-    })
+    }),
+    new webpack.HotModuleReplacementPlugin()
   ],
   mode: 'development',
   devtool: 'eval',
   devServer: {
+    hot: true,
     port: 9900,
     disableHostCheck: true,
+    overlay: {
+      errors: true
+    },
     before: require('../tests/mock')
   }
 }

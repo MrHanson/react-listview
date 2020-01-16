@@ -1,6 +1,5 @@
 const path = require('path')
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
-// const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 
 const config = {
   resolve: {
