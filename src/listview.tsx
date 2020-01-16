@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect, useRef } from 'react'
+import React, { FC, useState, useEffect, useMemo, useRef } from 'react'
 
 // components
 import ListviewHeader from '@/components/listview-header.tsx'
@@ -86,14 +86,33 @@ const Listview: FC<ListviewProps> = function({
   pageSize = 20
 }: ListviewProps) {
   // state
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [contentData, setContentData] = useState([])
   const [currentPageSize, setCurrentPageSize] = useState(pageSize)
   const [currentPage, setCurrentPage] = useState(1)
   const [total, setTotal] = useState(0)
 
+  // computed
+  const tableHeight = '300px'
+
   // ref
+  const listviewHeaderRef = useRef(null)
+  const filterbarRef = useRef(null)
   const antTblRef = useRef(null)
+
+  const updateLayout = (): void => {
+    const innerHeight = window.innerHeight
+    const contentHeight = innerHeight - listviewHeaderRef.current.offsetHeight
+  }
+
+  useEffect(() => {
+    if (fullHeight) {
+      updateLayout()
+      window.addEventListener('resize', updateLayout)
+    } else {
+      window.removeEventListener('resize', updateLayout)
+    }
+  }, [])
 
   if (!requestUrl && !requestHandler) {
     warn('unavailable requestUrl & requestHandler, unable to reqeust')
@@ -128,9 +147,9 @@ const Listview: FC<ListviewProps> = function({
     }
 
     if (autoload) {
+      setLoading(true)
       // prettier-ignore
       const { response, loadingStatus } = useAxios(requestUrl, requestMethod, requestConfig, requestHandler)
-
       /* To do: validateResponse, resolveResponseErrorMessage, transformResponseData, contentDataMap, contentMessage  */
 
       setLoading(loadingStatus)
@@ -182,21 +201,28 @@ const Listview: FC<ListviewProps> = function({
   // merge default tableProps with custom tableProps
   const _tableProps = merge(
     {
+      size: 'small',
+      locale: {
+        emptyText: '暂无数据'
+      },
+      scroll: fullHeight,
       onRow: (record): TableEventListeners => ({
         onClick: (): void => {
           console.log(antTblRef.current)
         }
-      })
+      }),
+      footer: currentData => 'Footer'
     },
     tableProps
   )
 
   return (
     <div className='listview'>
-      <ListviewHeader headerTitle={headerTitle} headerNav={headerNav} />
+      <ListviewHeader ref={listviewHeaderRef} headerTitle={headerTitle} headerNav={headerNav} />
       <div className='listview__main'>
-        <Filterbar {...filterBarProps} />
+        <Filterbar ref={filterbarRef} {...filterBarProps} />
         <Table
+          style={{ height: tableHeight }}
           ref={antTblRef}
           loading={loading}
           rowSelection={rowSelection}

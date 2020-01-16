@@ -4,11 +4,12 @@ import { FilterbarProps, AntButton } from '@/listview.type'
 import FilterbarForm from './filterbar-form'
 import { Form, Button } from 'antd'
 
-const renderButton = (item: AntButton): ReactNode => {
+const renderButton = (item: AntButton, index?: string): ReactNode => {
   // prettier-ignore
   const { text, disabled, ghost, href, target, htmlType, icon, loading, shape, size, type, onClick, block } = item
   return (
     <Button
+      key={index}
       disabled={disabled}
       ghost={ghost}
       href={href}
@@ -61,51 +62,54 @@ const Filterbar: FC<FilterbarProps> = function({
               filterbarHasMore ? '' : ''
             }`}
           >
-            <div className='filterbar__submit-btn'>
-              {prependSubmitSlot?.(filterModel)}
-              {showFilterSearch ? (
-                <Button
-                  type='primary'
-                  icon='search'
-                  onClick={(): void => {
-                    console.log('search')
-                  }}
-                >
-                  {filterSearchText}
-                </Button>
-              ) : null}
-              {showFilterReset ? (
-                <Button
-                  onClick={(): void => {
-                    console.log('reset')
-                  }}
-                >
-                  {filterResetText}
-                </Button>
-              ) : null}
-              {appendSubmitSlot?.(filterModel)}
-            </div>
-            <Button
-              type='primary'
-              icon='caret-down'
-              onClick={(): void => setFilterbarIsFold(filterbarIsFold => !filterbarIsFold)}
-            ></Button>
+            <Form.Item>
+              <div className='filterbar__submit-btn'>
+                {prependSubmitSlot?.(filterModel)}
+                {showFilterSearch ? (
+                  <Button
+                    type='primary'
+                    icon='search'
+                    onClick={(): void => {
+                      console.log('search')
+                    }}
+                  >
+                    {filterSearchText}
+                  </Button>
+                ) : null}
+                {showFilterReset ? (
+                  <Button
+                    onClick={(): void => {
+                      console.log('reset')
+                    }}
+                  >
+                    {filterResetText}
+                  </Button>
+                ) : null}
+                {appendSubmitSlot?.(filterModel)}
+              </div>
+              <Button
+                type='primary'
+                className={filterbarHasMore ? '' : 'filterbar__submit-more'}
+                icon={filterbarIsFold ? 'caret-down' : 'caret-up'}
+                onClick={(): void => setFilterbarIsFold(filterbarIsFold => !filterbarIsFold)}
+              ></Button>
+            </Form.Item>
           </div>
         ) : null}
 
         {filterButtons.length > 0 ? (
           <div className='filterbar__buttons'>
             {filterButtons
-              .map((item: any) => {
+              .map((item: any, i) => {
                 if (item && Array.isArray(item.children)) {
                   const ButtonGroup = Button.Group
                   return (
-                    <ButtonGroup size={item.size}>
-                      {item.children.map(child => renderButton(child))}
+                    <ButtonGroup size={item.size} key={'fBG' + i}>
+                      {item.children.map((child, j) => renderButton(child, 'fBG' + i + j))}
                     </ButtonGroup>
                   )
                 }
-                return item && renderButton(item)
+                return item && renderButton(item, 'fB' + i)
               })
               .filter(item => !!item)}
           </div>

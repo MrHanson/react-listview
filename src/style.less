@@ -1,11 +1,11 @@
 @import '~antd/dist/antd.css';
-@filter-gap-size: 10px;
+@filter-gap-size: 8px;
 
 .listview {
   overflow: auto;
 
   .listview__header {
-    padding: 10px 20px;
+    padding: 8px 12px;
     line-height: 1.5;
     background-color: #fff;
     border-bottom: 1px solid #dcdfe6;
@@ -23,80 +23,39 @@
   }
 
   &__main {
-    padding: 10px;
-    padding-bottom: 5px;
+    padding: 8px;
+    padding-bottom: 4px;
     background-color: #fff;
-    border: 5px solid #f0f2f5;
+    border: 4px solid #f0f2f5;
 
     .listview__filterbar {
-      padding-top: @filter-gap-size;
-      margin-top: -@filter-gap-size;
       margin-bottom: @filter-gap-size;
-
       &::after {
-        display: table;
+        display: block;
+        font-size: 0;
         clear: both;
         content: '';
       }
-
-      &--fold {
-        box-sizing: content-box;
-        height: 32px;
-        overflow: hidden;
-      }
-
-      .filterbar__submit-btn .ant-btn {
-        float: left;
-      }
-
-      .filterbar__buttons,
-      .filterbar__field {
-        position: relative;
+    }
+    .filterbar__submit {
+      float: right;
+      &-btn {
         display: inline-block;
-        margin: 0 @filter-gap-size @filter-gap-size 0;
-        vertical-align: top;
+        margin-right: 8px;
+        & > *:not(:nth-child(1)) {
+          margin-left: 8px;
+        }
       }
 
-      .filterbar__field--group {
-        margin: 0;
+      &-more {
+        display: none;
       }
+    }
 
-      .filterbar__buttons {
-        float: left;
-        margin-right: 0;
-      }
-
-      .filterbar__form {
-        margin-bottom: -@filter-gap-size;
-      }
-
-      .filterbar__submit {
-        float: right;
-        margin: 0;
-        margin-bottom: 10px;
-
-        &-btn {
-          display: inline-block;
-        }
-
-        &-more {
-          width: 40px;
-          padding: 0;
-          margin-left: 10px;
-          line-height: 30px;
-        }
-
-        &--nomore {
-          padding-right: 50px;
-
-          .filterbar__submit-more {
-            display: none;
-          }
-        }
-
-        &--onleft {
-          float: inherit;
-        }
+    .filterbar__buttons {
+      float: left;
+      > *:not(:nth-child(1)) {
+        margin-left: 8px;
       }
     }
   }

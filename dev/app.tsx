@@ -5,7 +5,24 @@ import { ListviewProps } from '@/listview.type'
 
 const listviewConfig: ListviewProps = {
   headerTitle: 'Demo',
-  headerNav: ['father', 'child']
+  headerNav: ['father', 'child'],
+  filterButtons: [
+    {
+      text: 'A',
+      icon: 'file-add',
+      type: 'primary'
+    },
+    {
+      children: [
+        { text: 'B', icon: 'export', type: 'dashed' },
+        { text: 'C', icon: 'printer' }
+      ]
+    },
+    {
+      text: 'D',
+      type: 'danger'
+    }
+  ]
 }
 
 render(<Listview {...listviewConfig} />, document.querySelector('#root'))

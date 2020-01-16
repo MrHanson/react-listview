@@ -6,10 +6,10 @@ const ListviewHeader: FC<ListviewHeaderProps> = function({
   headerTitle,
   headerNav
 }: ListviewHeaderProps) {
-  let BreadCrumb
+  let BreadcrumbArr
 
   if (Array.isArray(headerNav) && headerNav.length > 0) {
-    BreadCrumb = (
+    BreadcrumbArr = (
       <Breadcrumb>
         {headerNav.map((item, index) => (
           <Breadcrumb.Item key={'BI' + index}>{item}</Breadcrumb.Item>
@@ -17,7 +17,7 @@ const ListviewHeader: FC<ListviewHeaderProps> = function({
       </Breadcrumb>
     )
   } else if (headerNav) {
-    BreadCrumb = (
+    BreadcrumbArr = (
       <Breadcrumb separator={headerNav['separator']}>
         {headerNav['children'].map((item, index) => (
           <Breadcrumb.Item key={'BI' + index}>{item}</Breadcrumb.Item>
@@ -28,8 +28,8 @@ const ListviewHeader: FC<ListviewHeaderProps> = function({
 
   return (
     <div className='listview__header'>
-      {headerTitle ? <h1 className='listview__title'>{headerTitle}</h1> : ''}
-      {BreadCrumb}
+      {headerTitle ? <h1 className='listview__title'>{headerTitle}</h1> : null}
+      {BreadcrumbArr ? <div className='listview__breadcrumb'>{BreadcrumbArr}</div> : null}
     </div>
   )
 }

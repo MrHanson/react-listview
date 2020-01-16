@@ -189,7 +189,7 @@ const FilterbarForm: FC<FilterbarFormProps> = function({
   filterFields = [],
   filterModel = {}
 }: FilterbarFormProps) {
-  return (
+  return filterFields.length > 0 ? (
     <div className='filterbar__form'>
       {filterFields.map(field => {
         if (Array.isArray(field)) {
@@ -204,7 +204,7 @@ const FilterbarForm: FC<FilterbarFormProps> = function({
         return renderField(filterModel, field)
       })}
     </div>
-  )
+  ) : null
 }
 
 export default FilterbarForm
