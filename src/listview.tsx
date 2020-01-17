@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect, useMemo, useRef } from 'react'
+import React, { FC, MutableRefObject, useState, useEffect, useMemo, useRef } from 'react'
 
 // components
 import ListviewHeader from '@/components/listview-header.tsx'
@@ -18,6 +18,17 @@ import { dataMapping, isValidateFieldValues } from '@/utils/utils.ts'
 import { TableEventListeners } from 'antd/es/table'
 
 import './style.less'
+const listviewMainPadding = 8
+const listviewMainPaddingBottom = 4
+const listviewMainBorderWidth = 4
+const listviewMainYGapSize =
+  listviewMainPadding + listviewMainPaddingBottom + listviewMainBorderWidth * 2
+
+const listviewMainStyle = {
+  padding: `${listviewMainPadding}px`,
+  paddingBottom: `${listviewMainPaddingBottom}px`,
+  border: `${listviewMainBorderWidth}px solid #f0f2f5`
+}
 
 // prettier-ignore
 function resolveFilterModelGetters(fields: FilterField[], getters = {}): { [k: string]: any; } {
@@ -87,13 +98,11 @@ const Listview: FC<ListviewProps> = function({
 }: ListviewProps) {
   // state
   const [loading, setLoading] = useState(false)
+  const [contentHeight, setContentHeight] = useState()
   const [contentData, setContentData] = useState([])
   const [currentPageSize, setCurrentPageSize] = useState(pageSize)
   const [currentPage, setCurrentPage] = useState(1)
   const [total, setTotal] = useState(0)
-
-  // computed
-  const tableHeight = '300px'
 
   // ref
   const listviewHeaderRef = useRef(null)
@@ -102,7 +111,16 @@ const Listview: FC<ListviewProps> = function({
 
   const updateLayout = (): void => {
     const innerHeight = window.innerHeight
-    const contentHeight = innerHeight - (listviewHeaderRef['current']?.['offsetHeight'] || 0)
+
+    const headerRefCur: MutableRefObject = listviewHeaderRef.current
+    const { height: headerHeight } = headerRefCur?.getBoundingClientRect?.()
+    console.log(headerHeight)
+
+    const filterbarRefCur: MutableRefObject = filterbarRef.current
+    const { height: filterbarHeight } = filterbarRefCur?.getBoundingClientRect?.()
+
+    // 8 for filterbarMarginBottom
+    setContentHeight(innerHeight - listviewMainYGapSize - headerHeight - filterbarHeight - 8)
   }
 
   useEffect(() => {
@@ -219,10 +237,10 @@ const Listview: FC<ListviewProps> = function({
   return (
     <div className='listview'>
       <ListviewHeader ref={listviewHeaderRef} headerTitle={headerTitle} headerNav={headerNav} />
-      <div className='listview__main'>
+      <div style={listviewMainStyle} className='listview__main'>
         <Filterbar ref={filterbarRef} {...filterBarProps} />
         <Table
-          style={{ height: tableHeight }}
+          style={{ height: contentHeight + 'px' }}
           ref={antTblRef}
           loading={loading}
           rowSelection={rowSelection}

@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, forwardRef, useState, useMemo } from 'react'
+import React, { FC, ReactNode, Ref, forwardRef, useState, useMemo } from 'react'
 import { FilterbarProps, AntButton } from '@/listview.type'
 
 import FilterbarForm from './filterbar-form'
@@ -28,18 +28,21 @@ const renderButton = (item: AntButton, index?: string): ReactNode => {
   )
 }
 
-const Filterbar: FC<FilterbarProps> = function({
-  filterButtons = [],
-  filterFields = [],
-  filterModel = {},
-  filterbarFold = true,
-  showFilterSearch = true,
-  filterSearchText = 'Search',
-  showFilterReset = true,
-  filterResetText = 'Reset',
-  prependSubmitSlot,
-  appendSubmitSlot
-}: FilterbarProps) {
+const Filterbar: FC<FilterbarProps> = function(
+  {
+    filterButtons = [],
+    filterFields = [],
+    filterModel = {},
+    filterbarFold = true,
+    showFilterSearch = true,
+    filterSearchText = 'Search',
+    showFilterReset = true,
+    filterResetText = 'Reset',
+    prependSubmitSlot,
+    appendSubmitSlot
+  }: FilterbarProps,
+  ref: Ref<any>
+) {
   function showSubmit(): boolean {
     return (
       showFilterSearch ||
@@ -54,7 +57,10 @@ const Filterbar: FC<FilterbarProps> = function({
   const filterbarHasMore = useMemo(() => false, filterFields)
 
   return (
-    <div className={`listview__filterbar ${filterbarIsFold ? 'listview__filterbar--fold' : null}`}>
+    <div
+      ref={ref}
+      className={`listview__filterbar ${filterbarIsFold ? 'listview__filterbar--fold' : null}`}
+    >
       <Form layout='inline'>
         {showSubmit() ? (
           <div

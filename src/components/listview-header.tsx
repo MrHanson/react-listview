@@ -1,11 +1,11 @@
-import React, { FC, forwardRef } from 'react'
+import React, { FC, Ref, forwardRef } from 'react'
 import { ListviewHeaderProps } from '@/listview.type'
 import { Breadcrumb } from 'antd'
 
-const ListviewHeader: FC<ListviewHeaderProps> = function({
-  headerTitle,
-  headerNav
-}: ListviewHeaderProps) {
+const ListviewHeader: FC<ListviewHeaderProps> = function(
+  { headerTitle, headerNav }: ListviewHeaderProps,
+  ref: Ref<any>
+) {
   let BreadcrumbArr
 
   if (Array.isArray(headerNav) && headerNav.length > 0) {
@@ -27,7 +27,7 @@ const ListviewHeader: FC<ListviewHeaderProps> = function({
   }
 
   return (
-    <div className='listview__header'>
+    <div className='listview__header' ref={ref}>
       {headerTitle ? <h1 className='listview__title'>{headerTitle}</h1> : null}
       {BreadcrumbArr ? <div className='listview__breadcrumb'>{BreadcrumbArr}</div> : null}
     </div>
