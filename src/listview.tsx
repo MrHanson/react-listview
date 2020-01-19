@@ -1,4 +1,4 @@
-import React, { FC, MutableRefObject, useState, useEffect, useMemo, useRef } from 'react'
+import React, { FC, MutableRefObject, useState, useEffect, useRef } from 'react'
 
 // components
 import ListviewHeader from '@/components/listview-header.tsx'
@@ -6,10 +6,18 @@ import Filterbar from '@/components/filterbar.tsx'
 import { Table } from 'antd'
 
 // types
-import { ListviewProps, FilterField, FilterbarProps } from '@/listview.type'
+import {
+  ListviewProps,
+  FilterField,
+  FilterbarProps,
+  ValidateResponse,
+  TransformResponseData,
+  ResolveResponseErrorMessage,
+  ContentDataMap
+} from '@/listview.type'
 
-// hooks
-import useAxios from '@/hooks/useAxios'
+// fetch
+import fetch from '@/utils/fetch'
 
 // utils
 import { cloneDeep, omitBy, isPlainObject, merge } from 'lodash'
@@ -62,6 +70,30 @@ function applyFieldGetter(payloadData: { [k: string]: any }, getters: { [k: stri
   })
 }
 
+function responseFlowHandler(
+  response: any,
+  validateResponse: ValidateResponse,
+  resolveResponseErrorMessage: ResolveResponseErrorMessage,
+  contentDataMap: ContentDataMap,
+  transformResponseData?: TransformResponseData
+): { [k: string]: any } {
+  if (validateResponse(response)) {
+    let responseData = response.result || response
+    if (transformResponseData) {
+      responseData = transformResponseData(responseData)
+    }
+    return {
+      isValidate: true,
+      data: dataMapping(responseData, contentDataMap)
+    }
+  } else {
+    return {
+      isValidate: false,
+      errMsg: resolveResponseErrorMessage(response)
+    }
+  }
+}
+
 const Listview: FC<ListviewProps> = function({
   headerTitle,
   headerNav,
@@ -75,8 +107,9 @@ const Listview: FC<ListviewProps> = function({
   transformRequestData,
   transformResponseData,
   contentDataMap = { items: 'result.items', total: 'result.total_count' },
-  contentMessage = null,
-  validateResponse = (response): boolean => (response.is_success ? true : false),
+  contentMessage = 'No Data',
+  validateResponse = (response): boolean =>
+    response.is_success || response.success ? true : false,
   resolveResponseErrorMessage = (response): string => response?.error_info?.msg || 'unknown error',
   filterButtons = [],
   filterFields = [],
@@ -100,6 +133,7 @@ const Listview: FC<ListviewProps> = function({
   const [loading, setLoading] = useState(false)
   const [contentHeight, setContentHeight] = useState()
   const [contentData, setContentData] = useState([])
+  const [innerContentMessage, setInnerContentMessage] = useState(contentMessage)
   const [currentPageSize, setCurrentPageSize] = useState(pageSize)
   const [currentPage, setCurrentPage] = useState(1)
   const [total, setTotal] = useState(0)
@@ -114,18 +148,18 @@ const Listview: FC<ListviewProps> = function({
     const innerHeight = window.innerHeight
 
     const headerRefCur: MutableRefObject = listviewHeaderRef.current
-    const { height: headerHeight } = headerRefCur?.getBoundingClientRect?.()
+    const headerHeight = headerRefCur?.getBoundingClientRect?.()?.height || 0
 
     const filterbarRefCur: MutableRefObject = filterbarRef.current
-    const { height: filterbarHeight } = filterbarRefCur?.getBoundingClientRect?.()
+    const filterbarHeight = filterbarRefCur?.getBoundingClientRect?.()?.height || 0
 
     const listviewRefCur: MutableRefObject = listviewRef.current
 
     const antTblHeader = listviewRefCur.querySelector('.ant-table-body')
-    const { height: tblHeaderHeight = 0 } = antTblHeader?.getBoundingClientRect?.()
+    const tblHeaderHeight = antTblHeader?.getBoundingClientRect?.()?.height || 0
 
     const antTblFooter = listviewRefCur.querySelector('.ant-table-footer')
-    const { height: tblFooterHeight = 0 } = antTblFooter?.getBoundingClientRect?.()
+    const tblFooterHeight = antTblFooter?.getBoundingClientRect?.()?.height || 0
 
     const antTblPlaceholder = listviewRefCur.querySelector('.ant-table-placeholder')
 
@@ -144,53 +178,90 @@ const Listview: FC<ListviewProps> = function({
     if (fullHeight) {
       updateLayout()
       window.addEventListener('resize', updateLayout)
+    } else if (height) {
+      setContentHeight(height)
     } else {
       window.removeEventListener('resize', updateLayout)
     }
-  }, [])
 
-  if (!requestUrl && !requestHandler) {
-    warn('unavailable requestUrl & requestHandler, unable to reqeust')
-  } else {
-    let payloadData = cloneDeep(filterModel)
-
-    const filterModelGetters = resolveFilterModelGetters(filterFields)
-    applyFieldGetter(payloadData, filterModelGetters)
-
-    // filter invalidate value
-    payloadData = omitBy(payloadData, val => {
-      !isValidateFieldValues(val)
-    })
-
-    let indexKey = 'page_index'
-    let sizeKey = 'page_size'
-    if (usePage) {
-      if (isPlainObject(usePage)) {
-        indexKey = usePage['pageIndex'] || 'page_index'
-        sizeKey = usePage['pageSize'] || 'page_size'
-      }
-      payloadData[indexKey] = currentPage
-      payloadData[sizeKey] = currentPageSize
+    if (!requestUrl && !requestHandler) {
+      warn('unavailable requestUrl & requestHandler, unable to reqeust')
     } else {
-      delete payloadData[indexKey]
-      delete payloadData[sizeKey]
-    }
+      let payloadData = cloneDeep(filterModel)
 
-    const requestData = transformRequestData?.(payloadData)
-    if (requestData === false) {
-      setLoading(false)
-    }
+      const filterModelGetters = resolveFilterModelGetters(filterFields)
+      applyFieldGetter(payloadData, filterModelGetters)
 
-    if (autoload) {
-      setLoading(true)
-      // prettier-ignore
-      const { response, loadingStatus } = useAxios(requestUrl, requestMethod, requestConfig, requestHandler)
-      /* To do: validateResponse, resolveResponseErrorMessage, transformResponseData, contentDataMap, contentMessage  */
+      // filter invalidate value
+      payloadData = omitBy(payloadData, val => {
+        !isValidateFieldValues(val)
+      })
 
-      setLoading(loadingStatus)
-      setContentData(response)
+      let indexKey = 'page_index'
+      let sizeKey = 'page_size'
+      if (usePage) {
+        if (isPlainObject(usePage)) {
+          indexKey = usePage['pageIndex'] || 'page_index'
+          sizeKey = usePage['pageSize'] || 'page_size'
+        }
+        payloadData[indexKey] = currentPage
+        payloadData[sizeKey] = currentPageSize
+      } else {
+        delete payloadData[indexKey]
+        delete payloadData[sizeKey]
+      }
+
+      const requestData = transformRequestData?.(payloadData)
+      if (requestData === false) {
+        return setLoading(false)
+      }
+
+      if (autoload) {
+        setLoading(true)
+        if (requestHandler) {
+          requestHandler(requestData).then(res => {
+            setLoading(false)
+
+            const result = responseFlowHandler(
+              res,
+              validateResponse,
+              resolveResponseErrorMessage,
+              contentDataMap,
+              transformResponseData
+            )
+            if (result.isValidate) {
+              const { items, total } = result.data
+              setContentData(items)
+              setTotal(total)
+            } else {
+              setInnerContentMessage(result.errMsg)
+            }
+          })
+        } else if (requestUrl) {
+          fetch(requestUrl, requestMethod, requestConfig, requestData).then(res => {
+            setLoading(false)
+
+            const result = responseFlowHandler(
+              res,
+              validateResponse,
+              resolveResponseErrorMessage,
+              contentDataMap,
+              transformResponseData
+            )
+            if (result.isValidate) {
+              const { items, total } = result.data
+              setContentData(items)
+              setTotal(total)
+            } else {
+              setInnerContentMessage(result.errMsg)
+            }
+          })
+        } else {
+          setLoading(false)
+        }
+      }
     }
-  }
+  }, [])
 
   const filterBarProps: FilterbarProps = {
     filterButtons,
@@ -223,13 +294,9 @@ const Listview: FC<ListviewProps> = function({
       setCurrentPage(page)
       setCurrentPageSize(pageSize)
 
-      // prettier-ignore
-      const [response, loadingStatus] = useAxios(requestUrl, requestMethod, requestConfig, requestHandler)
-
       /* To do: validateResponse, resolveResponseErrorMessage, transformResponseData, contentDataMap, contentMessage  */
 
-      setLoading(loadingStatus)
-      setContentData(response)
+      setLoading(false)
     }
   }, pagination) : {}
 
@@ -238,20 +305,14 @@ const Listview: FC<ListviewProps> = function({
     {
       size: 'small',
       locale: {
-        emptyText: '暂无数据'
+        emptyText: innerContentMessage
       },
       scroll: fullHeight,
       onRow: (record): TableEventListeners => ({
         onClick: (): void => {
           console.log(antTblRef.current)
         }
-      }),
-      footer: currentData => (
-        <div className='footer'>
-          <p>f one</p>
-          <p>f two</p>
-        </div>
-      )
+      })
     },
     tableProps
   )

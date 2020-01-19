@@ -5,8 +5,8 @@ let _requestCancelToken: Canceler
 async function fetch(
   requestUrl?: string,
   reqeustMethod: Method = 'get',
-  reqeustConfig?: AxiosRequestConfig
-  // eslint-disable-next-line
+  reqeustConfig?: AxiosRequestConfig,
+  requestData?: { [k: string]: any } | boolean
 ): Promise<any> {
   // debounce
   _requestCancelToken?.()
@@ -22,10 +22,12 @@ async function fetch(
     _requestCancelToken = cancel
   })
 
-  if (_requestConfig.method === 'get') {
-    _requestConfig['params'] = reqeustConfig?.params
-  } else {
-    _requestConfig['data'] = reqeustConfig?.data
+  if (requestData) {
+    if (_requestConfig.method === 'get') {
+      finalRequestConfig['params'] = requestData
+    } else {
+      finalRequestConfig['data'] = requestData
+    }
   }
 
   try {

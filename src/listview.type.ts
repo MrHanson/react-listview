@@ -177,14 +177,14 @@ export interface SelectOption {
   children?: SelectOption[]
 }
 
-export type RequestHandler = (requestData?: object) => Promise<any>
+export type RequestHandler = (requestData?: object | boolean) => Promise<any>
 
 export type TransformRequestData = (requestData?: object) => object | boolean
 
-export type TransformResponseData = (responseData?: object) => void
+export type TransformResponseData = (responseData?: object) => object
 
 export type ValidateResponse = (response?: any) => boolean
 
-export type ResolveResponseErrorMessage = (response?: any) => any
+export type ResolveResponseErrorMessage = (response?: any) => string
 
 export type ContentDataMap = { [k: string]: string }
