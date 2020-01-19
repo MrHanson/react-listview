@@ -105,6 +105,7 @@ const Listview: FC<ListviewProps> = function({
   const [total, setTotal] = useState(0)
 
   // ref
+  const listviewRef = useRef(null)
   const listviewHeaderRef = useRef(null)
   const filterbarRef = useRef(null)
   const antTblRef = useRef(null)
@@ -114,13 +115,29 @@ const Listview: FC<ListviewProps> = function({
 
     const headerRefCur: MutableRefObject = listviewHeaderRef.current
     const { height: headerHeight } = headerRefCur?.getBoundingClientRect?.()
-    console.log(headerHeight)
 
     const filterbarRefCur: MutableRefObject = filterbarRef.current
     const { height: filterbarHeight } = filterbarRefCur?.getBoundingClientRect?.()
 
+    const listviewRefCur: MutableRefObject = listviewRef.current
+
+    const antTblHeader = listviewRefCur.querySelector('.ant-table-body')
+    const { height: tblHeaderHeight = 0 } = antTblHeader?.getBoundingClientRect?.()
+
+    const antTblFooter = listviewRefCur.querySelector('.ant-table-footer')
+    const { height: tblFooterHeight = 0 } = antTblFooter?.getBoundingClientRect?.()
+
+    const antTblPlaceholder = listviewRefCur.querySelector('.ant-table-placeholder')
+
     // 8 for filterbarMarginBottom
-    setContentHeight(innerHeight - listviewMainYGapSize - headerHeight - filterbarHeight - 8)
+    const contentHeight = innerHeight - listviewMainYGapSize - headerHeight - filterbarHeight - 8
+    const placeHolderHeight = contentHeight - tblHeaderHeight - tblFooterHeight
+    if (antTblPlaceholder) {
+      antTblPlaceholder.style.height = placeHolderHeight + 'px'
+      antTblPlaceholder.style.lineHeight = placeHolderHeight + 'px'
+    }
+
+    setContentHeight(contentHeight)
   }
 
   useEffect(() => {
@@ -229,13 +246,18 @@ const Listview: FC<ListviewProps> = function({
           console.log(antTblRef.current)
         }
       }),
-      footer: currentData => 'Footer'
+      footer: currentData => (
+        <div className='footer'>
+          <p>f one</p>
+          <p>f two</p>
+        </div>
+      )
     },
     tableProps
   )
 
   return (
-    <div className='listview'>
+    <div ref={listviewRef} className='listview'>
       <ListviewHeader ref={listviewHeaderRef} headerTitle={headerTitle} headerNav={headerNav} />
       <div style={listviewMainStyle} className='listview__main'>
         <Filterbar ref={filterbarRef} {...filterBarProps} />
