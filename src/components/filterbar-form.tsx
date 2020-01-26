@@ -1,27 +1,29 @@
-import React, { FC, ReactNode } from 'react'
+import React, { FC, ReactNode, Ref, forwardRef } from 'react'
 import { FilterbarFormProps, FilterField, SelectOption } from '@/listview.type'
 
 // prettier-ignore
 import { AutoComplete, Cascader, Select, DatePicker, Input, InputNumber, Mentions, TreeSelect, Form } from 'antd'
 const { MonthPicker, RangePicker, WeekPicker } = DatePicker
 
-import { isFunction, camelCase } from 'lodash'
+import { isFunction, camelCase, merge } from 'lodash'
 
 const getFieldComponent = (field: FilterField): ReactNode => {
   const key = field.key || field.model || null
   const fieldKey = camelCase(key || undefined)
   const type = field.type
+  const componentStyle = merge({ width: 220 }, field.style)
   const componentProps = field.componentProps || {}
 
   if (type) {
     let component
+    /* To do: beautify code of get `component` */
     switch (type) {
       case 'autoComplete':
         component = (
           <AutoComplete
             allowClear
             key={fieldKey}
-            style={{ width: 200 }}
+            style={componentStyle}
             disabled={field.disabled}
             placeholder={field.placeholder}
             onChange={field.onChange}
@@ -34,7 +36,7 @@ const getFieldComponent = (field: FilterField): ReactNode => {
           <Cascader
             allowClear
             key={fieldKey}
-            style={{ width: 250 }}
+            style={componentStyle}
             disabled={field.disabled}
             placeholder={field.placeholder}
             onChange={field.onChange}
@@ -47,6 +49,7 @@ const getFieldComponent = (field: FilterField): ReactNode => {
           <DatePicker
             allowClear
             key={fieldKey}
+            style={componentStyle}
             disabled={field.disabled}
             placeholder={field.placeholder}
             onChange={field.onChange}
@@ -59,6 +62,7 @@ const getFieldComponent = (field: FilterField): ReactNode => {
           <MonthPicker
             allowClear
             key={fieldKey}
+            style={componentStyle}
             disabled={field.disabled}
             placeholder={field.placeholder}
             onChange={field.onChange}
@@ -71,6 +75,7 @@ const getFieldComponent = (field: FilterField): ReactNode => {
           <RangePicker
             allowClear
             key={fieldKey}
+            style={componentStyle}
             disabled={field.disabled}
             placeholder={field.placeholderPair}
             onChange={field.onChange}
@@ -83,6 +88,7 @@ const getFieldComponent = (field: FilterField): ReactNode => {
           <WeekPicker
             allowClear
             key={fieldKey}
+            style={componentStyle}
             disabled={field.disabled}
             placeholder={field.placeholder}
             onChange={field.onChange}
@@ -94,6 +100,7 @@ const getFieldComponent = (field: FilterField): ReactNode => {
         component = (
           <InputNumber
             key={fieldKey}
+            style={componentStyle}
             disabled={field.disabled}
             placeholder={field.placeholder}
             onChange={field.onChange}
@@ -106,6 +113,7 @@ const getFieldComponent = (field: FilterField): ReactNode => {
           <Input
             allowClear
             key={fieldKey}
+            style={componentStyle}
             disabled={field.disabled}
             placeholder={field.placeholder}
             onChange={field.onChange}
@@ -115,7 +123,12 @@ const getFieldComponent = (field: FilterField): ReactNode => {
         break
       case 'mentions':
         component = (
-          <Mentions key={fieldKey} onChange={field.onChange} {...componentProps}>
+          <Mentions
+            key={fieldKey}
+            style={componentStyle}
+            onChange={field.onChange}
+            {...componentProps}
+          >
             {Array.isArray(field.options) &&
               field.options.map((item: SelectOption) => (
                 <Mentions.Option key={item.key} value={item.value}>
@@ -130,7 +143,7 @@ const getFieldComponent = (field: FilterField): ReactNode => {
           <Select
             allowClear
             key={fieldKey}
-            style={{ width: 250 }}
+            style={componentStyle}
             disabled={field.disabled}
             placeholder={field.placeholder}
             onChange={field.onChange}
@@ -150,6 +163,7 @@ const getFieldComponent = (field: FilterField): ReactNode => {
           <TreeSelect
             allowClear
             key={fieldKey}
+            style={componentStyle}
             disabled={field.disabled}
             placeholder={field.placeholder}
             onChange={field.onChange}
@@ -165,19 +179,20 @@ const getFieldComponent = (field: FilterField): ReactNode => {
 }
 
 const renderField = (model, field): ReactNode => {
+  const key = field.key || field.model || null
+  const fieldKey = camelCase(key || undefined)
   const label = field.label ? (
     <div className='filterbar__label-trans'>{/**To do: label transition animation */}</div>
   ) : null
 
-  let content
-  if (isFunction(field.render)) {
-    content = field.render(field)
-  } else {
-    content = <Form.Item>{getFieldComponent(field)}</Form.Item>
-  }
+  const content = (
+    <Form.Item>
+      {isFunction(field.render) ? field.render(model) : getFieldComponent(field)}
+    </Form.Item>
+  )
 
   return (
-    <div className='filterbar__field'>
+    <div className='filterbar__field' key={fieldKey}>
       {label}
       {content}
     </div>
@@ -185,12 +200,12 @@ const renderField = (model, field): ReactNode => {
 }
 
 /* To do: use React.Provider pass params */
-const FilterbarForm: FC<FilterbarFormProps> = function({
-  filterFields = [],
-  filterModel = {}
-}: FilterbarFormProps) {
+const FilterbarForm: FC<FilterbarFormProps> = function(
+  { filterFields = [], filterModel = {} }: FilterbarFormProps,
+  ref: Ref<any>
+) {
   return filterFields.length > 0 ? (
-    <div className='filterbar__form'>
+    <div className='filterbar__form' ref={ref}>
       {filterFields.map(field => {
         if (Array.isArray(field)) {
           const subFieldNodes: ReactNode[] = []
@@ -207,4 +222,4 @@ const FilterbarForm: FC<FilterbarFormProps> = function({
   ) : null
 }
 
-export default FilterbarForm
+export default forwardRef(FilterbarForm)

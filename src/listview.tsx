@@ -1,4 +1,4 @@
-import React, { FC, MutableRefObject, useState, useEffect, useRef } from 'react'
+import React, { FC, useState, useEffect, useRef } from 'react'
 
 // components
 import ListviewHeader from '@/components/listview-header.tsx'
@@ -13,7 +13,8 @@ import {
   ValidateResponse,
   TransformResponseData,
   ResolveResponseErrorMessage,
-  ContentDataMap
+  ContentDataMap,
+  JsObject
 } from '@/listview.type'
 
 // fetch
@@ -83,14 +84,29 @@ function responseFlowHandler(
       responseData = transformResponseData(responseData)
     }
     return {
-      isValidate: true,
+      valid: true,
       data: dataMapping(responseData, contentDataMap)
     }
   } else {
     return {
-      isValidate: false,
+      valid: false,
       errMsg: resolveResponseErrorMessage(response)
     }
+  }
+}
+
+function resovleResponse(
+  { res, validateResponse, resolveResponseErrorMessage, contentDataMap, transformResponseData },
+  { setContentData, setTotal, setInnerContentMessage }
+): void {
+  // prettier-ignore
+  const { valid, data, errMsg } = responseFlowHandler(res, validateResponse, resolveResponseErrorMessage, contentDataMap, transformResponseData)
+  if (valid) {
+    const { items, total } = data
+    setContentData(items)
+    setTotal(total)
+  } else {
+    setInnerContentMessage(errMsg)
   }
 }
 
@@ -147,13 +163,20 @@ const Listview: FC<ListviewProps> = function({
   const updateLayout = (): void => {
     const innerHeight = window.innerHeight
 
-    const headerRefCur: MutableRefObject = listviewHeaderRef.current
+    const headerRefCur: JsObject = listviewHeaderRef.current || {}
     const headerHeight = headerRefCur?.getBoundingClientRect?.()?.height || 0
 
-    const filterbarRefCur: MutableRefObject = filterbarRef.current
-    const filterbarHeight = filterbarRefCur?.getBoundingClientRect?.()?.height || 0
+    const filterbarRefCur: JsObject = filterbarRef.current || {}
+    let filterbarHeight = filterbarRefCur?.getBoundingClientRect?.()?.height || 0
+    if (filterbarFold) {
+      filterbarHeight = 40
+    }
 
-    const listviewRefCur: MutableRefObject = listviewRef.current
+    const listviewRefCur: JsObject = listviewRef.current || {}
+
+    // 8 for filterbarMarginBottom
+    const innerContentHeight =
+      innerHeight - listviewMainYGapSize - headerHeight - filterbarHeight - 8
 
     const antTblHeader = listviewRefCur.querySelector('.ant-table-body')
     const tblHeaderHeight = antTblHeader?.getBoundingClientRect?.()?.height || 0
@@ -162,16 +185,13 @@ const Listview: FC<ListviewProps> = function({
     const tblFooterHeight = antTblFooter?.getBoundingClientRect?.()?.height || 0
 
     const antTblPlaceholder = listviewRefCur.querySelector('.ant-table-placeholder')
-
-    // 8 for filterbarMarginBottom
-    const contentHeight = innerHeight - listviewMainYGapSize - headerHeight - filterbarHeight - 8
-    const placeHolderHeight = contentHeight - tblHeaderHeight - tblFooterHeight
+    const placeHolderHeight = innerContentHeight - tblHeaderHeight - tblFooterHeight
     if (antTblPlaceholder) {
       antTblPlaceholder.style.height = placeHolderHeight + 'px'
       antTblPlaceholder.style.lineHeight = placeHolderHeight + 'px'
     }
 
-    setContentHeight(contentHeight)
+    setContentHeight(innerContentHeight)
   }
 
   useEffect(() => {
@@ -222,39 +242,31 @@ const Listview: FC<ListviewProps> = function({
           requestHandler(requestData).then(res => {
             setLoading(false)
 
-            const result = responseFlowHandler(
-              res,
-              validateResponse,
-              resolveResponseErrorMessage,
-              contentDataMap,
-              transformResponseData
+            resovleResponse(
+              {
+                res,
+                validateResponse,
+                resolveResponseErrorMessage,
+                contentDataMap,
+                transformResponseData
+              },
+              { setContentData, setTotal, setInnerContentMessage }
             )
-            if (result.isValidate) {
-              const { items, total } = result.data
-              setContentData(items)
-              setTotal(total)
-            } else {
-              setInnerContentMessage(result.errMsg)
-            }
           })
         } else if (requestUrl) {
           fetch(requestUrl, requestMethod, requestConfig, requestData).then(res => {
             setLoading(false)
 
-            const result = responseFlowHandler(
-              res,
-              validateResponse,
-              resolveResponseErrorMessage,
-              contentDataMap,
-              transformResponseData
+            resovleResponse(
+              {
+                res,
+                validateResponse,
+                resolveResponseErrorMessage,
+                contentDataMap,
+                transformResponseData
+              },
+              { setContentData, setTotal, setInnerContentMessage }
             )
-            if (result.isValidate) {
-              const { items, total } = result.data
-              setContentData(items)
-              setTotal(total)
-            } else {
-              setInnerContentMessage(result.errMsg)
-            }
           })
         } else {
           setLoading(false)

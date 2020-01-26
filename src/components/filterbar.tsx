@@ -1,5 +1,5 @@
-import React, { FC, ReactNode, Ref, forwardRef, useState, useMemo } from 'react'
-import { FilterbarProps, AntButton } from '@/listview.type'
+import React, { FC, ReactNode, Ref, forwardRef, useState, useRef, useEffect } from 'react'
+import { FilterbarProps, AntButton, JsObject } from '@/listview.type'
 
 import FilterbarForm from './filterbar-form'
 import { Form, Button } from 'antd'
@@ -52,21 +52,53 @@ const Filterbar: FC<FilterbarProps> = function(
     )
   }
 
+  const filterbarFormRef = useRef(null)
+  const filterbarSubmitRef = useRef(null)
   const [filterbarIsFold, setFilterbarIsFold] = useState(filterbarFold)
-  const isNoneFields = useMemo(() => filterFields.length === 0, filterFields)
-  const filterbarHasMore = useMemo(() => false, filterFields)
+  const [filterbarHasMore, setFilterbarHasMore] = useState(false)
+  const isNoneFields = filterFields.length === 0
+
+  useEffect(() => {
+    const filterbarFormRefCur: JsObject = filterbarFormRef.current || {}
+    const filterbarFormHeight = filterbarFormRefCur?.getBoundingClientRect?.()?.height || 0
+    if (filterbarFormHeight > 40) {
+      setFilterbarHasMore(true)
+    }
+
+    // if no fields, filterbar__submit float left
+    if (isNoneFields) return
+
+    // update filterbar__submit offset
+    const filterbarSubmitRefCur: JsObject = filterbarSubmitRef.current || {}
+    const allFields = filterbarFormRefCur.querySelectorAll('.filterbar__field')
+    let { top: fieldTop } = allFields[0]?.getBoundingClientRect?.() || 0
+    let topRightFieldIndex = -1
+    for (let i = 0; i < allFields.length; i++) {
+      const field = allFields[i]
+      const curFieldTop = field.getBoundingClientRect().top || 0
+      if (curFieldTop !== fieldTop) break
+
+      fieldTop = curFieldTop
+      topRightFieldIndex = i
+    }
+    const targetFieldRight = allFields[topRightFieldIndex]?.getBoundingClientRect?.().right || 0
+    const left = filterbarSubmitRefCur?.getBoundingClientRect?.().left || 0
+    const offset = Math.floor(left - targetFieldRight - 32)
+    filterbarSubmitRefCur.style = `transform: translateX(${-offset}px)`
+  }, [])
 
   return (
     <div
       ref={ref}
-      className={`listview__filterbar ${filterbarIsFold ? 'listview__filterbar--fold' : null}`}
+      className={`listview__filterbar ${
+        filterbarIsFold && filterbarHasMore ? 'listview__filterbar--fold' : null
+      }`}
     >
       <Form layout='inline'>
         {showSubmit() ? (
           <div
-            className={`filterbar__submit ${isNoneFields ? 'filterbar__submit--onleft' : ''} ${
-              filterbarHasMore ? '' : ''
-            }`}
+            ref={filterbarSubmitRef}
+            className={`filterbar__submit ${isNoneFields ? 'filterbar__submit--onleft' : ''}`}
           >
             <Form.Item>
               <div className='filterbar__submit-btn'>
@@ -95,7 +127,7 @@ const Filterbar: FC<FilterbarProps> = function(
               </div>
               <Button
                 type='primary'
-                className={filterbarHasMore ? '' : 'filterbar__submit-more'}
+                className={filterbarHasMore ? '' : 'filterbar__submit--no-more'}
                 icon={filterbarIsFold ? 'caret-down' : 'caret-up'}
                 onClick={(): void => setFilterbarIsFold(filterbarIsFold => !filterbarIsFold)}
               ></Button>
@@ -121,7 +153,7 @@ const Filterbar: FC<FilterbarProps> = function(
           </div>
         ) : null}
 
-        <FilterbarForm filterFields={filterFields} filterModel={filterModel} />
+        <FilterbarForm ref={filterbarFormRef} {...{ filterFields, filterModel }} />
       </Form>
     </div>
   )

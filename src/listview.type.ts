@@ -122,7 +122,7 @@ export interface AntButtonGroup {
 }
 
 export interface FilterField extends ComponentChild {
-  render?: (field: FilterField) => ReactNode
+  render?: (modela: any) => ReactNode
 }
 
 type FieldType =
@@ -141,6 +141,8 @@ type FieldType =
 interface ComponentChild {
   /** 字段控件类型 */
   type?: FieldType
+
+  style?: { [k: string]: any }
 
   /** 字段提交参数名 */
   model?: string
@@ -188,3 +190,5 @@ export type ValidateResponse = (response?: any) => boolean
 export type ResolveResponseErrorMessage = (response?: any) => string
 
 export type ContentDataMap = { [k: string]: string }
+
+export type JsObject = { [k: string]: any }
