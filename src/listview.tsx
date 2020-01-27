@@ -160,7 +160,7 @@ const Listview: FC<ListviewProps> = function({
   const filterbarRef = useRef(null)
   const antTblRef = useRef(null)
 
-  const updateLayout = (): void => {
+  const updateLayout = function(): void {
     requestAnimationFrame(() => {
       const innerHeight = window.innerHeight
 
