@@ -61,7 +61,7 @@ const Filterbar: FC<FilterbarProps> = function(
   useEffect(() => {
     const filterbarFormRefCur: JsObject = filterbarFormRef.current || {}
     const filterbarFormHeight = filterbarFormRefCur?.getBoundingClientRect?.()?.height || 0
-    if (filterbarFormHeight > 40) {
+    if (filterbarFormHeight > 45) {
       setFilterbarHasMore(true)
     }
 
@@ -129,7 +129,10 @@ const Filterbar: FC<FilterbarProps> = function(
                 type='primary'
                 className={filterbarHasMore ? '' : 'filterbar__submit--no-more'}
                 icon={filterbarIsFold ? 'caret-down' : 'caret-up'}
-                onClick={(): void => setFilterbarIsFold(filterbarIsFold => !filterbarIsFold)}
+                onClick={(): void => {
+                  setFilterbarIsFold(filterbarIsFold => !filterbarIsFold)
+                  window.dispatchEvent(new Event('resize'))
+                }}
               ></Button>
             </Form.Item>
           </div>

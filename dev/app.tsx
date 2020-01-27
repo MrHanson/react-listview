@@ -131,6 +131,15 @@ const listviewConfig: ListviewProps = {
       onChange(val): void {
         console.log(val)
       }
+    },
+    {
+      type: 'weekPicker',
+      label: 'weekPicker6',
+      model: 'weekPicker6',
+      placeholder: 'weekPicker6',
+      onChange(val): void {
+        console.log('weekPicker6', val)
+      }
     }
   ]
 }

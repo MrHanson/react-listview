@@ -161,37 +161,35 @@ const Listview: FC<ListviewProps> = function({
   const antTblRef = useRef(null)
 
   const updateLayout = (): void => {
-    const innerHeight = window.innerHeight
+    requestAnimationFrame(() => {
+      const innerHeight = window.innerHeight
 
-    const headerRefCur: JsObject = listviewHeaderRef.current || {}
-    const headerHeight = headerRefCur?.getBoundingClientRect?.()?.height || 0
+      const headerRefCur: JsObject = listviewHeaderRef.current || {}
+      const headerHeight = headerRefCur?.getBoundingClientRect?.()?.height || 0
 
-    const filterbarRefCur: JsObject = filterbarRef.current || {}
-    let filterbarHeight = filterbarRefCur?.getBoundingClientRect?.()?.height || 0
-    if (filterbarFold) {
-      filterbarHeight = 40
-    }
+      const filterbarRefCur: JsObject = filterbarRef.current || {}
+      const filterbarHeight = filterbarRefCur?.getBoundingClientRect?.()?.height || 0
 
-    const listviewRefCur: JsObject = listviewRef.current || {}
+      const listviewRefCur: JsObject = listviewRef.current || {}
 
-    // 8 for filterbarMarginBottom
-    const innerContentHeight =
-      innerHeight - listviewMainYGapSize - headerHeight - filterbarHeight - 8
+      // 8 for filterbarMarginBottom
+      const innerContentHeight =
+        innerHeight - listviewMainYGapSize - headerHeight - filterbarHeight - 8
+      setContentHeight(innerContentHeight)
 
-    const antTblHeader = listviewRefCur.querySelector('.ant-table-body')
-    const tblHeaderHeight = antTblHeader?.getBoundingClientRect?.()?.height || 0
+      const antTblHeader = listviewRefCur.querySelector('.ant-table-body')
+      const tblHeaderHeight = antTblHeader?.getBoundingClientRect?.()?.height || 0
 
-    const antTblFooter = listviewRefCur.querySelector('.ant-table-footer')
-    const tblFooterHeight = antTblFooter?.getBoundingClientRect?.()?.height || 0
+      const antTblFooter = listviewRefCur.querySelector('.ant-table-footer')
+      const tblFooterHeight = antTblFooter?.getBoundingClientRect?.()?.height || 0
 
-    const antTblPlaceholder = listviewRefCur.querySelector('.ant-table-placeholder')
-    const placeHolderHeight = innerContentHeight - tblHeaderHeight - tblFooterHeight
-    if (antTblPlaceholder) {
-      antTblPlaceholder.style.height = placeHolderHeight + 'px'
-      antTblPlaceholder.style.lineHeight = placeHolderHeight + 'px'
-    }
-
-    setContentHeight(innerContentHeight)
+      const antTblPlaceholder = listviewRefCur.querySelector('.ant-table-placeholder')
+      const placeHolderHeight = innerContentHeight - tblHeaderHeight - tblFooterHeight
+      if (antTblPlaceholder) {
+        antTblPlaceholder.style.height = placeHolderHeight + 'px'
+        antTblPlaceholder.style.lineHeight = placeHolderHeight + 'px'
+      }
+    })
   }
 
   useEffect(() => {

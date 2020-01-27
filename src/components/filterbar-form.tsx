@@ -11,7 +11,7 @@ const getFieldComponent = (field: FilterField): ReactNode => {
   const key = field.key || field.model || null
   const fieldKey = camelCase(key || undefined)
   const type = field.type
-  const componentStyle = merge({ width: 220 }, field.style)
+  let componentStyle = merge({ width: 220 }, field.style)
   const componentProps = field.componentProps || {}
 
   if (type) {
@@ -159,6 +159,7 @@ const getFieldComponent = (field: FilterField): ReactNode => {
         )
         break
       case 'treeSelect':
+        componentStyle = merge(componentStyle, { transform: 'translateY(4px)' })
         component = (
           <TreeSelect
             allowClear
