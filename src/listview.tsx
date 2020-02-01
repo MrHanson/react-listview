@@ -3,7 +3,7 @@ import React, { FC, useState, useEffect, useRef } from 'react'
 // components
 import ListviewHeader from '@/components/listview-header.tsx'
 import Filterbar from '@/components/filterbar.tsx'
-import { Table } from 'antd'
+import { Table, Alert } from 'antd'
 
 // types
 import {
@@ -23,13 +23,14 @@ import fetch from '@/utils/fetch'
 // utils
 import { cloneDeep, omitBy, isPlainObject, merge } from 'lodash'
 import { warn, error } from '@/utils/debug.ts'
-import { dataMapping, isValidateFieldValues } from '@/utils/utils.ts'
-import { TableEventListeners } from 'antd/es/table'
+import { dataMapping, isValidatedFieldValues } from '@/utils/utils.ts'
 
 import './style.less'
+const filterbarMarginBottom = 8
 const listviewMainPadding = 8
 const listviewMainPaddingBottom = 4
 const listviewMainBorderWidth = 4
+const listviewPaginationHeight = 64
 const listviewMainYGapSize =
   listviewMainPadding + listviewMainPaddingBottom + listviewMainBorderWidth * 2
 
@@ -123,13 +124,12 @@ const Listview: FC<ListviewProps> = function({
   transformRequestData,
   transformResponseData,
   contentDataMap = { items: 'result.items', total: 'result.total_count' },
-  contentMessage = 'No Data',
+  contentMessage = 'Unknow error',
   validateResponse = (response): boolean =>
     response.is_success || response.success ? true : false,
   resolveResponseErrorMessage = (response): string => response?.error_info?.msg || 'unknown error',
   filterButtons = [],
   filterFields = [],
-  filterModel = {},
   showFilterSearch = true,
   filterSearchText = 'Search',
   showFilterReset = true,
@@ -139,7 +139,6 @@ const Listview: FC<ListviewProps> = function({
   filterbarFold = true,
   tableColumns = [],
   tableProps,
-  rowSelection = { type: 'checkbox', fixed: true },
   usePage = true,
   pagination,
   pageSizeOptions = ['20', '50', '100'],
@@ -158,7 +157,6 @@ const Listview: FC<ListviewProps> = function({
   const listviewRef = useRef(null)
   const listviewHeaderRef = useRef(null)
   const filterbarRef = useRef(null)
-  const antTblRef = useRef(null)
 
   const updateLayout = function(): void {
     requestAnimationFrame(() => {
@@ -172,23 +170,19 @@ const Listview: FC<ListviewProps> = function({
 
       const listviewRefCur: JsObject = listviewRef.current || {}
 
-      // 8 for filterbarMarginBottom
+      // 8 for filterbarMarginBottom, 64 for pagination
       const innerContentHeight =
-        innerHeight - listviewMainYGapSize - headerHeight - filterbarHeight - 8
+        innerHeight -
+        listviewMainYGapSize -
+        headerHeight -
+        filterbarHeight -
+        filterbarMarginBottom -
+        listviewPaginationHeight
       setContentHeight(innerContentHeight)
 
-      const antTblHeader = listviewRefCur.querySelector('.ant-table-body')
-      const tblHeaderHeight = antTblHeader?.getBoundingClientRect?.()?.height || 0
-
-      const antTblFooter = listviewRefCur.querySelector('.ant-table-footer')
-      const tblFooterHeight = antTblFooter?.getBoundingClientRect?.()?.height || 0
-
-      const antTblPlaceholder = listviewRefCur.querySelector('.ant-table-placeholder')
-      const placeHolderHeight = innerContentHeight - tblHeaderHeight - tblFooterHeight
-      if (antTblPlaceholder) {
-        antTblPlaceholder.style.height = placeHolderHeight + 'px'
-        antTblPlaceholder.style.lineHeight = placeHolderHeight + 'px'
-      }
+      const antTblContentRef = listviewRefCur?.querySelector?.('.ant-table-content')
+      const antMainTbl = antTblContentRef?.querySelector?.('table')
+      antMainTbl.style.height = innerContentHeight + 'px'
     })
   }
 
@@ -196,23 +190,19 @@ const Listview: FC<ListviewProps> = function({
     if (fullHeight) {
       updateLayout()
       window.addEventListener('resize', updateLayout)
-    } else if (height) {
-      setContentHeight(height)
-    } else {
-      window.removeEventListener('resize', updateLayout)
     }
 
     if (!requestUrl && !requestHandler) {
       warn('unavailable requestUrl & requestHandler, unable to reqeust')
     } else {
-      let payloadData = cloneDeep(filterModel)
+      let payloadData = cloneDeep({})
 
       const filterModelGetters = resolveFilterModelGetters(filterFields)
       applyFieldGetter(payloadData, filterModelGetters)
 
       // filter invalidate value
       payloadData = omitBy(payloadData, val => {
-        !isValidateFieldValues(val)
+        !isValidatedFieldValues(val)
       })
 
       let indexKey = 'page_index'
@@ -276,7 +266,6 @@ const Listview: FC<ListviewProps> = function({
   const filterBarProps: FilterbarProps = {
     filterButtons,
     filterFields,
-    filterModel,
     showFilterSearch,
     filterSearchText,
     showFilterReset,
@@ -295,7 +284,6 @@ const Listview: FC<ListviewProps> = function({
     showQuickJumper: true,
     pageSizeOptions,
     simple: false,
-    size: 'small',
     total,
     showTotal: function(total): string {
       return `Total：${total}`
@@ -313,16 +301,9 @@ const Listview: FC<ListviewProps> = function({
   // merge default tableProps with custom tableProps
   const _tableProps = merge(
     {
-      size: 'small',
-      locale: {
-        emptyText: innerContentMessage
-      },
-      scroll: fullHeight,
-      onRow: (record): TableEventListeners => ({
-        onClick: (): void => {
-          console.log(antTblRef.current)
-        }
-      })
+      rowSelection: {
+        type: 'checkbox'
+      }
     },
     tableProps
   )
@@ -333,10 +314,8 @@ const Listview: FC<ListviewProps> = function({
       <div style={listviewMainStyle} className='listview__main'>
         <Filterbar ref={filterbarRef} {...filterBarProps} />
         <Table
-          style={{ height: contentHeight + 'px' }}
-          ref={antTblRef}
+          style={{ height: `${contentHeight}px` }}
           loading={loading}
-          rowSelection={rowSelection}
           columns={tableColumns}
           dataSource={contentData}
           pagination={_pagination}

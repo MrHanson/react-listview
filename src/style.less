@@ -39,7 +39,19 @@
         overflow: hidden;
       }
     }
+
+    .filterbar__buttons {
+      height: 40px;
+      line-height: 40px;
+      float: left;
+      > * {
+        margin-right: 8px;
+      }
+    }
+
     .filterbar__submit {
+      height: 40px;
+      line-height: 40px;
       float: right;
       &-btn {
         display: inline-block;
@@ -58,22 +70,14 @@
       }
     }
 
-    .filterbar__buttons {
-      height: 40px;
-      line-height: 40px;
-      float: left;
-      > *:not(:nth-child(1)) {
-        margin-left: 8px;
-      }
-    }
-
-    .filterbar__field {
-      display: inline-block;
-      margin-bottom: 4px;
-      line-height: 40px;
-      height: 40px;
-      &:first-child {
-        margin-left: 16px;
+    .filterbar__form {
+      .filterbar__field {
+        box-sizing: border-box;
+        line-height: 40px;
+        height: 40px;
+        display: inline-block;
+        margin-bottom: 0;
+        margin-right: 8px;
       }
     }
   }

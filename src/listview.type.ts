@@ -1,5 +1,7 @@
 import { AxiosRequestConfig, Method } from 'axios'
-import { TableProps, ColumnProps, TableRowSelection, PaginationConfig } from 'antd/es/table'
+import { TableProps, TablePaginationConfig } from 'antd/es/table/index'
+import { ColumnProps } from 'antd/es/table/Column'
+import { ClickParam } from 'antd/es/menu/index'
 import { ReactNode } from 'react'
 
 interface HeaderNav {
@@ -57,9 +59,6 @@ export interface ListviewProps extends ListviewHeaderProps, FilterbarProps {
   /** 可传入 Antd Table 的所有支持属性。 default: {} */
   tableProps?: TableProps<any>
 
-  /** 是否开启表格行选择功能，传入 'single' 为表格单选效果。 default: true */
-  rowSelection?: TableRowSelection<any>
-
   /** 是否开启底部分页功能，或配置请求时分页参数的键名。 default: true */
   usePage?:
     | boolean
@@ -68,7 +67,7 @@ export interface ListviewProps extends ListviewHeaderProps, FilterbarProps {
         pageSize: string
       }
 
-  pagination?: PaginationConfig
+  pagination?: TablePaginationConfig
 
   /** 分页“每页数量”可选值。 default: ['20', '50', '100'] */
   pageSizeOptions?: string[]
@@ -77,20 +76,17 @@ export interface ListviewProps extends ListviewHeaderProps, FilterbarProps {
   pageSize?: number
 }
 
-export interface FilterbarProps extends FilterbarFormProps {
+export interface FilterbarProps {
   filterButtons?: FilterButton[]
+  filterFields?: FilterField[]
   filterbarFold?: boolean
   showFilterSearch?: boolean
   filterSearchText?: string
   showFilterReset?: boolean
   filterResetText?: string
-  prependSubmitSlot?: (state: any) => ReactNode
-  appendSubmitSlot?: (state: any) => ReactNode
-}
-
-export interface FilterbarFormProps {
-  filterFields?: FilterField[]
-  filterModel?: { [k: string]: any }
+  prependSubmitSlot?: ReactNode
+  appendSubmitSlot?: ReactNode
+  onSearch?: (formName: string, info: { values; forms }) => void
 }
 
 export interface TableColumnGroup {
@@ -98,7 +94,7 @@ export interface TableColumnGroup {
   tableColumns: ColumnProps<any>[]
 }
 
-export type FilterButton = AntButton | AntButtonGroup
+export type FilterButton = AntButton | AntButton[] | AntDropdownButton
 
 export interface AntButton {
   text?: string
@@ -106,46 +102,35 @@ export interface AntButton {
   ghost?: boolean
   href?: string
   target?: string // href启用时有效
-  htmlType?: 'button' | 'reset' | 'submit' // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#attr-type
-  icon?: string
+  icon?: ReactNode
   loading?: boolean | { delay: number }
-  shape?: 'circle' | 'round'
-  size?: 'small' | 'default' | 'large'
-  type?: 'link' | 'default' | 'ghost' | 'primary' | 'dashed' | 'danger'
+  type?: 'link' | 'dashed' | 'primary'
+  danger?: boolean
   onClick?: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void
   block?: boolean
+  children?: DropdownButton[]
+  onSelect?: (param: ClickParam) => void
 }
 
-export interface AntButtonGroup {
-  size?: 'small' | 'default' | 'large'
+interface DropdownButton {
+  text: string
+  key?: string
+}
+
+export interface AntDropdownButton {
   children?: AntButton[]
 }
 
-export interface FilterField extends ComponentChild {
-  render?: (modela: any) => ReactNode
-}
+export interface FilterField {
+  /** 字段提交参数名 */
+  model: string
 
-type FieldType =
-  | 'autoComplete'
-  | 'cascader'
-  | 'select'
-  | 'datePicker'
-  | 'monthPicker'
-  | 'rangePicker'
-  | 'weekPicker'
-  | 'input'
-  | 'inputNumber'
-  | 'mentions'
-  | 'treeSelect'
+  defaultValue?: any
 
-interface ComponentChild {
   /** 字段控件类型 */
   type?: FieldType
 
   style?: { [k: string]: any }
-
-  /** 字段提交参数名 */
-  model?: string
 
   /** 字段文本说明 */
   label?: string
@@ -160,8 +145,6 @@ interface ComponentChild {
 
   get?: (val: any) => any
 
-  key?: string
-
   /** 类型为 select 或 mentions 时的选项配置 */
   options?: SelectOption[]
 
@@ -169,6 +152,24 @@ interface ComponentChild {
   componentProps?: { [k: string]: any }
 
   onChange?: (val: any) => void
+}
+
+type FieldType =
+  | 'AutoComplete'
+  | 'Cascader'
+  | 'Select'
+  | 'DatePicker'
+  | 'MonthPicker'
+  | 'RangePicker'
+  | 'WeekPicker'
+  | 'Input'
+  | 'Mentions'
+  | 'TreeSelect'
+
+export interface FieldComponentProps {
+  field: FilterField
+  value: any
+  setModel: (val: any) => void
 }
 
 export interface SelectOption {

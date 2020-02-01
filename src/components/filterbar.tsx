@@ -1,25 +1,47 @@
 import React, { FC, ReactNode, Ref, forwardRef, useState, useRef, useEffect } from 'react'
-import { FilterbarProps, AntButton, JsObject } from '@/listview.type'
 
-import FilterbarForm from './filterbar-form'
-import { Form, Button } from 'antd'
+import { FilterbarProps, AntButton, JsObject, FilterField, SelectOption } from '@/listview.type'
 
-const renderButton = (item: AntButton, index?: string): ReactNode => {
+import { SearchOutlined, DownOutlined, CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons'
+// prettier-ignore
+import { Form, Button, Dropdown, Menu, AutoComplete, Cascader, Select, DatePicker, Input, Mentions, TreeSelect } from 'antd'
+const { MonthPicker, RangePicker, WeekPicker } = DatePicker
+
+import { merge } from 'lodash'
+
+const renderButton = (item: AntButton, key?: string): ReactNode => {
   // prettier-ignore
-  const { text, disabled, ghost, href, target, htmlType, icon, loading, shape, size, type, onClick, block } = item
+  const { text, disabled, ghost, href, target, icon, loading, type, danger, onClick, block, children, onSelect } = item
+
+  if (children) {
+    const menu = (
+      <Menu onClick={onSelect}>
+        {children.map((child, index) => (
+          <Menu.Item key={child.key || `MenuI${index}`}>{child.text}</Menu.Item>
+        ))}
+      </Menu>
+    )
+    return (
+      <Dropdown overlay={menu}>
+        <Button icon={icon} type={type} danger={danger} disabled={disabled}>
+          {text}
+          <DownOutlined />
+        </Button>
+      </Dropdown>
+    )
+  }
+
   return (
     <Button
-      key={index}
+      key={key}
       disabled={disabled}
       ghost={ghost}
       href={href}
       target={target}
-      htmlType={htmlType}
       icon={icon}
       loading={loading}
-      shape={shape}
-      size={size}
       type={type}
+      danger={danger}
       onClick={onClick}
       block={block}
     >
@@ -28,29 +50,110 @@ const renderButton = (item: AntButton, index?: string): ReactNode => {
   )
 }
 
+const renderField = (field: FilterField, key: string): ReactNode => {
+  const type = field.type || ''
+  const componentProps = merge(field.componentProps, {
+    key: field.model,
+    disabled: field.disabled,
+    style: merge(
+      {
+        width: '220px'
+      },
+      field.style
+    )
+  })
+
+  let Component
+  switch (type) {
+    case 'AutoComplete':
+      Component = <AutoComplete allowClear placeholder={field.placeholder} {...componentProps} />
+      break
+    case 'Cascader':
+      Component = <Cascader allowClear placeholder={field.placeholder} {...componentProps} />
+      break
+    case 'Select':
+      Component = (
+        <Select allowClear placeholder={field.placeholder} {...componentProps}>
+          {Array.isArray(field.options) &&
+            field?.options?.map((item: SelectOption) => (
+              <Select.Option key={item.key} value={item.value}>
+                {item.title}
+              </Select.Option>
+            ))}
+        </Select>
+      )
+      break
+    case 'DatePicker':
+      Component = (
+        <DatePicker allowClear placeholder={field.placeholder} {...componentProps}></DatePicker>
+      )
+      break
+    case 'Input':
+      Component = <Input allowClear placeholder={field.placeholder} {...componentProps}></Input>
+      break
+    case 'Mentions':
+      Component = (
+        <Mentions placeholder={field.placeholder} {...componentProps}>
+          {Array.isArray(field.options) &&
+            field?.options?.map((item: SelectOption) => (
+              <Mentions.Option key={item.key} value={item.value}>
+                {item.title}
+              </Mentions.Option>
+            ))}
+        </Mentions>
+      )
+      break
+    case 'TreeSelect':
+      Component = (
+        <TreeSelect allowClear placeholder={field.placeholder} {...componentProps}></TreeSelect>
+      )
+      break
+    case 'MonthPicker':
+      Component = (
+        <MonthPicker allowClear placeholder={field.placeholder} {...componentProps}></MonthPicker>
+      )
+      break
+    case 'RangePicker':
+      Component = (
+        <RangePicker
+          allowClear
+          placeholder={field.placeholderPair}
+          {...componentProps}
+        ></RangePicker>
+      )
+      break
+    case 'WeekPicker':
+      Component = (
+        <WeekPicker allowClear placeholder={field.placeholder} {...componentProps}></WeekPicker>
+      )
+      break
+  }
+
+  return (
+    <Form.Item className='filterbar__field' key={key} name={field.model} label={field.label}>
+      {Component}
+    </Form.Item>
+  )
+}
+
 const Filterbar: FC<FilterbarProps> = function(
   {
     filterButtons = [],
     filterFields = [],
-    filterModel = {},
     filterbarFold = true,
     showFilterSearch = true,
     filterSearchText = 'Search',
     showFilterReset = true,
     filterResetText = 'Reset',
     prependSubmitSlot,
-    appendSubmitSlot
+    appendSubmitSlot,
+    onSearch = (_, { values }): void => {
+      console.log('onSearch', values)
+    }
   }: FilterbarProps,
   ref: Ref<any>
 ) {
-  function showSubmit(): boolean {
-    return (
-      showFilterSearch ||
-      showFilterReset ||
-      !!prependSubmitSlot?.(filterModel) ||
-      !!appendSubmitSlot?.(filterModel)
-    )
-  }
+  const [form] = Form.useForm()
 
   const filterbarFormRef = useRef(null)
   const filterbarSubmitRef = useRef(null)
@@ -58,106 +161,90 @@ const Filterbar: FC<FilterbarProps> = function(
   const [filterbarHasMore, setFilterbarHasMore] = useState(false)
   const isNoneFields = filterFields.length === 0
 
+  // To do: fix submit offset bug
+
   useEffect(() => {
     const filterbarFormRefCur: JsObject = filterbarFormRef.current || {}
     const filterbarFormHeight = filterbarFormRefCur?.getBoundingClientRect?.()?.height || 0
-    if (filterbarFormHeight > 45) {
+    if (filterbarFormHeight > 40) {
       setFilterbarHasMore(true)
     }
-
-    // if no fields, filterbar__submit float left
-    if (isNoneFields) return
-
-    // update filterbar__submit offset
-    const filterbarSubmitRefCur: JsObject = filterbarSubmitRef.current || {}
-    const allFields = filterbarFormRefCur.querySelectorAll('.filterbar__field')
-    let { top: fieldTop } = allFields[0]?.getBoundingClientRect?.() || 0
-    let topRightFieldIndex = -1
-    for (let i = 0; i < allFields.length; i++) {
-      const field = allFields[i]
-      const curFieldTop = field.getBoundingClientRect().top || 0
-      if (curFieldTop !== fieldTop) break
-
-      fieldTop = curFieldTop
-      topRightFieldIndex = i
-    }
-    const targetFieldRight = allFields[topRightFieldIndex]?.getBoundingClientRect?.().right || 0
-    const left = filterbarSubmitRefCur?.getBoundingClientRect?.().left || 0
-    const offset = Math.floor(left - targetFieldRight - 32)
-    filterbarSubmitRefCur.style = `transform: translateX(${-offset}px)`
   }, [])
 
   return (
     <div
       ref={ref}
       className={`listview__filterbar ${
-        filterbarIsFold && filterbarHasMore ? 'listview__filterbar--fold' : null
+        filterbarIsFold && filterbarHasMore ? 'listview__filterbar--fold' : ''
       }`}
     >
-      <Form layout='inline'>
-        {showSubmit() ? (
-          <div
-            ref={filterbarSubmitRef}
-            className={`filterbar__submit ${isNoneFields ? 'filterbar__submit--onleft' : ''}`}
-          >
-            <Form.Item>
+      <Form.Provider
+        onFormChange={(_, { changedFields }): void => {
+          console.log('onFormChange', changedFields)
+        }}
+        onFormFinish={onSearch}
+      >
+        <Form name='filterbar_form' form={form}>
+          {filterButtons.length > 0 ? (
+            <div className='filterbar__buttons'>
+              {filterButtons.map((item: any, i) => {
+                if (item && Array.isArray(item)) {
+                  const ButtonGroup = Button.Group
+                  return (
+                    <ButtonGroup key={'fBG' + i}>
+                      {item.map((child, j) => renderButton(child, 'fBG' + i + j))}
+                    </ButtonGroup>
+                  )
+                }
+                return item ? renderButton(item, 'fB' + i) : null
+              })}
+            </div>
+          ) : null}
+
+          {showFilterSearch || showFilterReset || !!prependSubmitSlot || !!appendSubmitSlot ? (
+            <div
+              ref={filterbarSubmitRef}
+              className={`filterbar__submit ${isNoneFields ? 'filterbar__submit--onleft' : ''}`}
+            >
               <div className='filterbar__submit-btn'>
-                {prependSubmitSlot?.(filterModel)}
+                {prependSubmitSlot}
                 {showFilterSearch ? (
-                  <Button
-                    type='primary'
-                    icon='search'
-                    onClick={(): void => {
-                      console.log('search')
-                    }}
-                  >
+                  <Button type='primary' htmlType='submit' icon={<SearchOutlined />}>
                     {filterSearchText}
                   </Button>
                 ) : null}
                 {showFilterReset ? (
                   <Button
                     onClick={(): void => {
-                      console.log('reset')
+                      form?.resetFields?.()
                     }}
                   >
                     {filterResetText}
                   </Button>
                 ) : null}
-                {appendSubmitSlot?.(filterModel)}
+                {appendSubmitSlot}
               </div>
               <Button
                 type='primary'
                 className={filterbarHasMore ? '' : 'filterbar__submit--no-more'}
-                icon={filterbarIsFold ? 'caret-down' : 'caret-up'}
+                icon={filterbarIsFold ? <CaretDownOutlined /> : <CaretUpOutlined />}
                 onClick={(): void => {
                   setFilterbarIsFold(filterbarIsFold => !filterbarIsFold)
                   window.dispatchEvent(new Event('resize'))
                 }}
               ></Button>
-            </Form.Item>
-          </div>
-        ) : null}
+            </div>
+          ) : null}
 
-        {filterButtons.length > 0 ? (
-          <div className='filterbar__buttons'>
-            {filterButtons
-              .map((item: any, i) => {
-                if (item && Array.isArray(item.children)) {
-                  const ButtonGroup = Button.Group
-                  return (
-                    <ButtonGroup size={item.size} key={'fBG' + i}>
-                      {item.children.map((child, j) => renderButton(child, 'fBG' + i + j))}
-                    </ButtonGroup>
-                  )
-                }
-                return item && renderButton(item, 'fB' + i)
-              })
-              .filter(item => !!item)}
-          </div>
-        ) : null}
-
-        <FilterbarForm ref={filterbarFormRef} {...{ filterFields, filterModel }} />
-      </Form>
+          {filterFields.length > 0 ? (
+            <div className='filterbar__form' ref={filterbarFormRef}>
+              {filterFields.map(
+                (field: FilterField, i): ReactNode => renderField(field, `field-${i}`)
+              )}
+            </div>
+          ) : null}
+        </Form>
+      </Form.Provider>
     </div>
   )
 }

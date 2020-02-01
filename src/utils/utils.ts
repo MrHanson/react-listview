@@ -1,4 +1,3 @@
-import { isPlainObject, isEmpty } from 'lodash'
 import get from './getValue'
 
 /**
@@ -30,11 +29,12 @@ export function dataMapping(data = {}, dataMap = {}): object {
   return result
 }
 
-export function isValidateFieldValues(val: any): boolean {
+export function isValidatedFieldValues(val: any): boolean {
   return !(
     val === null ||
     val === undefined ||
     val === '' ||
-    ((Array.isArray(val) || isPlainObject(val)) && isEmpty(val))
+    JSON.stringify(val) === '[]' ||
+    JSON.stringify(val) === '{}'
   )
 }

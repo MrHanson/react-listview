@@ -7,7 +7,6 @@ const ListviewHeader: FC<ListviewHeaderProps> = function(
   ref: Ref<any>
 ) {
   let BreadcrumbArr
-
   if (Array.isArray(headerNav) && headerNav.length > 0) {
     BreadcrumbArr = (
       <Breadcrumb>
