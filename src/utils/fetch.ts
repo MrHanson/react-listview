@@ -1,13 +1,17 @@
-import Axios, { AxiosRequestConfig, Method, Canceler } from 'Axios'
+import Axios, { AxiosInstance, AxiosRequestConfig, Method, Canceler } from 'Axios'
 import { merge } from 'lodash'
+import { PlainObject } from '@/listview.type'
 
 let _requestCancelToken: Canceler
-async function fetch(
+function fetch(
   requestUrl?: string,
   reqeustMethod: Method = 'get',
   reqeustConfig?: AxiosRequestConfig,
-  requestData?: { [k: string]: any } | boolean
-): Promise<any> {
+  requestData?: PlainObject
+): {
+  axiosService: AxiosInstance
+  axiosConfig: AxiosRequestConfig
+} {
   // debounce
   _requestCancelToken?.()
 
@@ -30,18 +34,8 @@ async function fetch(
     }
   }
 
-  try {
-    const axiosService = Axios.create()
-    const axiosResponse = await axiosService(finalRequestConfig)
-    return axiosResponse.data
-  } catch (err) {
-    if (Axios.isCancel(err)) {
-      // axios internal cancel
-      return false
-    } else {
-      return err
-    }
-  }
+  const axiosService = Axios.create()
+  return { axiosService, axiosConfig: finalRequestConfig }
 }
 
 export default fetch

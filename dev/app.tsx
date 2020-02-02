@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 import { render } from 'react-dom'
 import Listview from '@/listview'
 import { ListviewProps } from '@/listview.type'
@@ -44,6 +44,8 @@ function App(): any {
   const listviewConfig: ListviewProps = {
     headerTitle: 'Demo',
     headerNav: ['father', 'child'],
+    requestUrl: '/mock/listview',
+    requestMethod: 'post',
     filterButtons: [
       [
         {
@@ -64,6 +66,10 @@ function App(): any {
         text: 'Danger'
       }
     ],
+    filterModel: {
+      input1: 'One',
+      selectA: 'optionA0'
+    },
     filterFields: [
       {
         model: 'input1',
@@ -113,7 +119,84 @@ function App(): any {
           treeData
         }
       }
-    ]
+    ],
+    tableColumns: [
+      {
+        align: 'center',
+        dataIndex: 'id',
+        title: 'id',
+        width: 200
+      },
+      {
+        align: 'center',
+        dataIndex: 'sku',
+        title: 'sku',
+        width: 200
+      },
+      {
+        align: 'center',
+        dataIndex: 'name',
+        title: 'name',
+        width: 200
+      },
+      {
+        align: 'center',
+        dataIndex: 'warehouse',
+        title: 'warehouse',
+        width: 200
+      },
+      {
+        align: 'center',
+        dataIndex: 'sale_price',
+        title: 'sale_price',
+        width: 200
+      },
+      {
+        align: 'center',
+        dataIndex: 'discount',
+        title: 'discount',
+        width: 200
+      },
+      {
+        align: 'center',
+        dataIndex: 'seller',
+        title: 'seller',
+        width: 200
+      },
+      {
+        align: 'center',
+        dataIndex: 'date',
+        title: 'date',
+        width: 200
+      },
+      {
+        align: 'center',
+        dataIndex: 'quantity',
+        title: 'quantity',
+        width: 200
+      },
+      {
+        align: 'center',
+        dataIndex: 'enable',
+        title: 'enable',
+        width: 200,
+        render: (text): ReactNode => text.toString()
+      }
+    ],
+    tableRowKey: 'id',
+    tableProps: {
+      summary: function summary(): ReactNode {
+        return (
+          <tr>
+            <td></td>
+            <td>Total</td>
+            <td colSpan={11} align='center'>
+              80
+            </td>
+          </tr>
+        )
+      }
+    }
   }
 
   return <Listview {...listviewConfig} />

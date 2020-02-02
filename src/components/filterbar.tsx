@@ -1,6 +1,6 @@
 import React, { FC, ReactNode, Ref, forwardRef, useState, useRef, useEffect } from 'react'
 
-import { FilterbarProps, AntButton, JsObject, FilterField, SelectOption } from '@/listview.type'
+import { FilterbarProps, AntButton, PlainObject, FilterField, SelectOption } from '@/listview.type'
 
 import { SearchOutlined, DownOutlined, CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons'
 // prettier-ignore
@@ -140,6 +140,7 @@ const Filterbar: FC<FilterbarProps> = function(
   {
     filterButtons = [],
     filterFields = [],
+    filterModel,
     filterbarFold = true,
     showFilterSearch = true,
     filterSearchText = 'Search',
@@ -147,9 +148,8 @@ const Filterbar: FC<FilterbarProps> = function(
     filterResetText = 'Reset',
     prependSubmitSlot,
     appendSubmitSlot,
-    onSearch = (_, { values }): void => {
-      console.log('onSearch', values)
-    }
+    onChange,
+    onSearch
   }: FilterbarProps,
   ref: Ref<any>
 ) {
@@ -161,10 +161,8 @@ const Filterbar: FC<FilterbarProps> = function(
   const [filterbarHasMore, setFilterbarHasMore] = useState(false)
   const isNoneFields = filterFields.length === 0
 
-  // To do: fix submit offset bug
-
   useEffect(() => {
-    const filterbarFormRefCur: JsObject = filterbarFormRef.current || {}
+    const filterbarFormRefCur: PlainObject = filterbarFormRef.current || {}
     const filterbarFormHeight = filterbarFormRefCur?.getBoundingClientRect?.()?.height || 0
     if (filterbarFormHeight > 40) {
       setFilterbarHasMore(true)
@@ -178,13 +176,8 @@ const Filterbar: FC<FilterbarProps> = function(
         filterbarIsFold && filterbarHasMore ? 'listview__filterbar--fold' : ''
       }`}
     >
-      <Form.Provider
-        onFormChange={(_, { changedFields }): void => {
-          console.log('onFormChange', changedFields)
-        }}
-        onFormFinish={onSearch}
-      >
-        <Form name='filterbar_form' form={form}>
+      <Form.Provider onFormChange={onChange} onFormFinish={onSearch}>
+        <Form name='filterbar_form' form={form} initialValues={filterModel}>
           {filterButtons.length > 0 ? (
             <div className='filterbar__buttons'>
               {filterButtons.map((item: any, i) => {

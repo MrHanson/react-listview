@@ -1,3 +1,5 @@
+import { PlainObject } from '@/listview.type'
+
 import get from './getValue'
 
 /**
@@ -16,7 +18,7 @@ import get from './getValue'
  * @param {object} data
  * @param {object} dataMap
  */
-export function dataMapping(data = {}, dataMap = {}): object {
+export function dataMapping(data = {}, dataMap = {}): PlainObject {
   const result = {}
   Object.keys(dataMap).forEach(key => {
     try {
@@ -37,4 +39,9 @@ export function isValidatedFieldValues(val: any): boolean {
     JSON.stringify(val) === '[]' ||
     JSON.stringify(val) === '{}'
   )
+}
+
+export function parseSize(val: any, unit = 'px'): string {
+  if (!val) return ''
+  return parseFloat(val) + unit
 }

@@ -4,7 +4,7 @@ const Mock = require('mockjs')
 const delay = require('express-delay')
 
 module.exports = app => {
-  app.use(delay(200, 1000))
+  app.use(delay(200, 700))
 
   router.all('*', function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*')

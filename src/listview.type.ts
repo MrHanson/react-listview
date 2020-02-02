@@ -56,6 +56,8 @@ export interface ListviewProps extends ListviewHeaderProps, FilterbarProps {
   /** 表格列配置。 default: [] */
   tableColumns?: ColumnProps<any>[]
 
+  tableRowKey: string | RowKeyFn
+
   /** 可传入 Antd Table 的所有支持属性。 default: {} */
   tableProps?: TableProps<any>
 
@@ -79,6 +81,7 @@ export interface ListviewProps extends ListviewHeaderProps, FilterbarProps {
 export interface FilterbarProps {
   filterButtons?: FilterButton[]
   filterFields?: FilterField[]
+  filterModel?: PlainObject
   filterbarFold?: boolean
   showFilterSearch?: boolean
   filterSearchText?: string
@@ -86,6 +89,7 @@ export interface FilterbarProps {
   filterResetText?: string
   prependSubmitSlot?: ReactNode
   appendSubmitSlot?: ReactNode
+  onChange?: (formName: string, info: { changedFields; forms }) => void
   onSearch?: (formName: string, info: { values; forms }) => void
 }
 
@@ -125,12 +129,10 @@ export interface FilterField {
   /** 字段提交参数名 */
   model: string
 
-  defaultValue?: any
-
   /** 字段控件类型 */
   type?: FieldType
 
-  style?: { [k: string]: any }
+  style?: PlainObject
 
   /** 字段文本说明 */
   label?: string
@@ -143,13 +145,13 @@ export interface FilterField {
   // placeholder for rangePicker
   placeholderPair?: [string, string]
 
-  get?: (val: any) => any
+  get?: (val: any, model: PlainObject) => any
 
   /** 类型为 select 或 mentions 时的选项配置 */
   options?: SelectOption[]
 
   /** 可传入对应控件原始的 props */
-  componentProps?: { [k: string]: any }
+  componentProps?: PlainObject
 
   onChange?: (val: any) => void
 }
@@ -166,12 +168,6 @@ type FieldType =
   | 'Mentions'
   | 'TreeSelect'
 
-export interface FieldComponentProps {
-  field: FilterField
-  value: any
-  setModel: (val: any) => void
-}
-
 export interface SelectOption {
   disabled?: boolean
   title: string
@@ -180,16 +176,24 @@ export interface SelectOption {
   children?: SelectOption[]
 }
 
-export type RequestHandler = (requestData?: object | boolean) => Promise<any>
+export type RequestHandler = (requestData?: object) => Promise<any>
 
-export type TransformRequestData = (requestData?: object) => object | boolean
+export type TransformRequestData = (requestData?: object) => object
 
-export type TransformResponseData = (responseData?: object) => object
+export type TransformResponseData = (
+  responseData?: object
+) => {
+  items: Array<any>
+  total: number
+  errorMsg: string
+}
 
 export type ValidateResponse = (response?: any) => boolean
 
 export type ResolveResponseErrorMessage = (response?: any) => string
 
-export type ContentDataMap = { [k: string]: string }
+export type ContentDataMap = { items: string; total: string }
 
-export type JsObject = { [k: string]: any }
+export type RowKeyFn = (record: any) => any
+
+export type PlainObject = { [k: string]: any }
