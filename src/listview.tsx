@@ -7,12 +7,18 @@ import { Table } from 'antd'
 
 // types
 import { AxiosResponse } from 'axios'
-import { ListviewProps, FilterField, FilterbarProps, PlainObject } from '@/listview.type'
+import { ListviewProps, FilterbarProps, PlainObject } from '@/listview.type'
 
 // utils
-import { cloneDeep, isPlainObject, isFunction, merge } from 'lodash'
-import { warn, error } from '@/utils/debug.ts'
-import { dataMapping, isValidatedFieldValues, parseSize } from '@/utils/utils.ts'
+import { cloneDeep, isPlainObject, merge } from 'lodash'
+import { warn } from '@/utils/debug.ts'
+import {
+  resolveFilterModelGetters,
+  applyFieldGetter,
+  dataMapping,
+  isValidatedFieldValues,
+  parseSize
+} from '@/utils/utils.ts'
 
 // fetch
 import fetch from '@/utils/fetch'
@@ -31,38 +37,6 @@ const listviewMainStyle = {
   padding: `${listviewMainPadding}px`,
   paddingBottom: `${listviewMainPaddingBottom}px`,
   border: `${listviewMainBorderWidth}px solid #f0f2f5`
-}
-
-// prettier-ignore
-function resolveFilterModelGetters(fields: FilterField[], getters = {}): { [k: string]: any; } {
-  return fields.reduce((result, field) => {
-    if (Array.isArray(field)) {
-      resolveFilterModelGetters(field, getters)
-    } else {
-      if (field.get && field.model) {
-        result[field.model] = field.get
-      }
-    }
-    return result
-  }, getters)
-}
-
-// prettier-ignore
-function applyFieldGetter(payload: { [k: string]: any }, getters: { [k: string]: any }): void {
-  Object.keys(getters).forEach(key => {
-    try {
-      payload[key] = isFunction(getters[key]) ? getters[key](payload[key], payload) : getters[key]
-    } catch (e) {
-      error(
-        [
-          `FilterFields '${key}' getter error:`,
-          `  - Value: ${JSON.stringify(payload[key])}`,
-          `  - Getter: ${getters[key].toString()}`,
-          `  - Error: ${e}`
-        ].join('\n')
-      )
-    }
-  })
 }
 
 const Listview: FC<ListviewProps> = function({

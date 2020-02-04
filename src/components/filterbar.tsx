@@ -7,8 +7,6 @@ import { SearchOutlined, DownOutlined, CaretDownOutlined, CaretUpOutlined } from
 import { Form, Button, Dropdown, Menu, AutoComplete, Cascader, Select, DatePicker, Input, Mentions, TreeSelect } from 'antd'
 const { MonthPicker, RangePicker, WeekPicker } = DatePicker
 
-import { merge } from 'lodash'
-
 const renderButton = (item: AntButton, key?: string): ReactNode => {
   // prettier-ignore
   const { text, disabled, ghost, href, target, icon, loading, type, danger, onClick, block, children, onSelect } = item
@@ -52,15 +50,13 @@ const renderButton = (item: AntButton, key?: string): ReactNode => {
 
 const renderField = (field: FilterField, key: string): ReactNode => {
   const type = field.type || ''
-  const componentProps = merge(field.componentProps, {
+  const componentProps = Object.assign(field.componentProps, {
     key: field.model,
     disabled: field.disabled,
-    style: merge(
-      {
-        width: '220px'
-      },
-      field.style
-    )
+    style: {
+      width: '220px',
+      ...(field.style || {})
+    }
   })
 
   let Component

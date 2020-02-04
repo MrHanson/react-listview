@@ -17,12 +17,10 @@ const config = {
       },
       {
         test: /\.css$/i,
-        exclude: /node_modules/,
         use: ['style-loader', 'css-loader', 'postcss-loader']
       },
       {
         test: /\.less$/,
-        exclude: /node_modules/,
         use: [
           'style-loader' /* creates style nodes from JS strings */,
           'css-loader' /* translates CSS into CommonJS */,

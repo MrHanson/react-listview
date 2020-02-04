@@ -1,6 +1,20 @@
-import { PlainObject } from '@/listview.type'
-
+import { PlainObject, FilterField } from '@/listview.type'
 import get from './getValue'
+import { error } from './debug'
+
+export function isValidatedFieldValues(val: any): boolean {
+  return !(
+    val === null ||
+    val === undefined ||
+    val === '' ||
+    JSON.stringify(val) === '[]' ||
+    JSON.stringify(val) === '{}'
+  )
+}
+
+export function isFunction(val: any): boolean {
+  return typeof val === 'function'
+}
 
 /**
  * @description handler of response data
@@ -31,14 +45,36 @@ export function dataMapping(data = {}, dataMap = {}): PlainObject {
   return result
 }
 
-export function isValidatedFieldValues(val: any): boolean {
-  return !(
-    val === null ||
-    val === undefined ||
-    val === '' ||
-    JSON.stringify(val) === '[]' ||
-    JSON.stringify(val) === '{}'
-  )
+// prettier-ignore
+export function resolveFilterModelGetters(fields: FilterField[], getters = {}): { [k: string]: any; } {
+  return fields.reduce((result, field) => {
+    if (Array.isArray(field)) {
+      resolveFilterModelGetters(field, getters)
+    } else {
+      if (field.get && field.model) {
+        result[field.model] = field.get
+      }
+    }
+    return result
+  }, getters)
+}
+
+// prettier-ignore
+export function applyFieldGetter(payload: { [k: string]: any }, getters: { [k: string]: any }): void {
+  Object.keys(getters).forEach(key => {
+    try {
+      payload[key] = isFunction(getters[key]) ? getters[key](payload[key], payload) : getters[key]
+    } catch (e) {
+      error(
+        [
+          `FilterFields '${key}' getter error:`,
+          `  - Value: ${JSON.stringify(payload[key])}`,
+          `  - Getter: ${getters[key].toString()}`,
+          `  - Error: ${e}`
+        ].join('\n')
+      )
+    }
+  })
 }
 
 export function parseSize(val: any, unit = 'px'): string {
