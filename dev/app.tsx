@@ -46,6 +46,7 @@ function App(): any {
     headerNav: ['father', 'child'],
     requestUrl: '/mock/listview',
     requestMethod: 'post',
+    autoload: false,
     filterButtons: [
       [
         {

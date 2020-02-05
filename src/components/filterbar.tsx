@@ -50,7 +50,7 @@ const renderButton = (item: AntButton, key?: string): ReactNode => {
 
 const renderField = (field: FilterField, key: string): ReactNode => {
   const type = field.type || ''
-  const componentProps = Object.assign(field.componentProps, {
+  const componentProps = Object.assign(field.componentProps || {}, {
     key: field.model,
     disabled: field.disabled,
     style: {

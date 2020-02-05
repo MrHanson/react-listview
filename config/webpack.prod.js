@@ -7,7 +7,7 @@ const common = require('./webpack.common')
 
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
-const libraryTargetList = ['umd', 'amd', 'common']
+const libraryTargetList = ['umd', 'common']
 
 const genBundle = function(libraryTarget = '') {
   let finalTarget = 'web'
@@ -22,8 +22,6 @@ const genBundle = function(libraryTarget = '') {
     finalTarget = 'node'
     finalLibraryTarget = 'commonjs2'
     plugins.push(new BundleAnalyzerPlugin())
-  } else if (libraryTarget.indexOf('amd')) {
-    finalLibraryTarget = 'amd'
   }
 
   return {

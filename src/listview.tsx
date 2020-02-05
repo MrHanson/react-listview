@@ -1,9 +1,9 @@
-import React, { FC, useState, useEffect, useRef } from 'react'
+import React, { FC, useState, useEffect, useRef, ReactNode } from 'react'
 
 // components
 import ListviewHeader from '@/components/listview-header.tsx'
 import Filterbar from '@/components/filterbar.tsx'
-import { Table } from 'antd'
+import { Table, Alert } from 'antd'
 
 // types
 import { AxiosResponse } from 'axios'
@@ -178,6 +178,11 @@ const Listview: FC<ListviewProps> = function({
     return result
   }
 
+  const renderTableBody = function(contentMessage): any {
+    // return <Alert message={contentMessage} />
+    return <div className='alert'></div>
+  }
+
   const exeRequest = function(payloadData, pageIndex: number, pageSize: number): void {
     if (!requestUrl && !requestHandler) {
       return warn('unavailable requestUrl & requestHandler, unable to reqeust')
@@ -283,6 +288,7 @@ const Listview: FC<ListviewProps> = function({
           dataSource={contentData}
           rowSelection={{ type: 'checkbox' }}
           rowKey={tableRowKey}
+          // components={{ header: { wrapper: renderTableBody(innerContentMessage) } }}
           pagination={_pagination}
           bordered
           {...tableProps}
