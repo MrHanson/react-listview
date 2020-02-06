@@ -47,6 +47,8 @@ function App(): any {
     requestUrl: '/mock/listview',
     requestMethod: 'post',
     autoload: false,
+    contentMessage: '首次加载不自动请求数据',
+    contentMessageType: 'info',
     filterButtons: [
       [
         {

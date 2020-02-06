@@ -7,7 +7,7 @@ import { Table, Alert } from 'antd'
 
 // types
 import { AxiosResponse } from 'axios'
-import { ListviewProps, FilterbarProps, PlainObject } from '@/listview.type'
+import { ListviewProps, ContentMessageType, FilterbarProps, PlainObject } from '@/listview.type'
 
 // utils
 import { cloneDeep, isPlainObject, merge } from 'lodash'
@@ -52,10 +52,11 @@ const Listview: FC<ListviewProps> = function({
   transformRequestData,
   transformResponseData,
   contentDataMap = { items: 'result.items', total: 'result.total_count' },
-  contentMessage = 'Unknow error',
+  contentMessageType = 'info',
+  contentMessage,
   validateResponse = (response): boolean =>
     response.is_success || response.success ? true : false,
-  resolveResponseErrorMessage = (response): string => response?.error_info?.msg || 'unknown error',
+  resolveResponseErrorMessage = (response): string => response?.error_info?.msg || 'Unknown error',
   filterButtons = [],
   filterFields = [],
   filterModel = {},
@@ -114,10 +115,12 @@ const Listview: FC<ListviewProps> = function({
 
   // state
   const [model, setModel] = useState(filterModel)
+  const [isInitLoad, setIsInitLoad] = useState(!autoload)
   const [isLoading, setIsLoading] = useState(false)
   const contentDataInit: Array<any> = []
   const [contentData, setContentData] = useState(contentDataInit)
-  const [innerContentMessage, setInnerContentMessage] = useState(contentMessage)
+  const [innerContentMessageType, setInnerContentMessageType] = useState()
+  const [innerContentMessage, setInnerContentMessage] = useState()
   const [currentPageSize, setCurrentPageSize] = useState(pageSize)
   const [currentPage, setCurrentPage] = useState(1)
   const [total, setTotal] = useState(0)
@@ -178,9 +181,19 @@ const Listview: FC<ListviewProps> = function({
     return result
   }
 
-  const renderTableBody = function(contentMessage): any {
-    // return <Alert message={contentMessage} />
-    return <div className='alert'></div>
+  const renderContentMessage = function(
+    contentMessage: string | undefined,
+    type: ContentMessageType
+  ): ReactNode {
+    const message = type[0].toUpperCase() + type.substring(1)
+    if (!contentMessage) {
+      return null
+    }
+    return (
+      <div className='content-message-wrapper'>
+        <Alert showIcon type={type} message={message} description={contentMessage} />
+      </div>
+    )
   }
 
   const exeRequest = function(payloadData, pageIndex: number, pageSize: number): void {
@@ -199,7 +212,10 @@ const Listview: FC<ListviewProps> = function({
           const { items, total, errorMsg } = afterRequest(axiosRes)
           setContentData(items)
           setTotal(total)
-          setInnerContentMessage(errorMsg)
+          if (errorMsg) {
+            setInnerContentMessageType('error')
+            setInnerContentMessage(errorMsg)
+          }
         })
       } else if (requestHandler) {
         setIsLoading(true)
@@ -208,11 +224,15 @@ const Listview: FC<ListviewProps> = function({
           const { items, total, errorMsg } = afterRequest(res)
           setContentData(items)
           setTotal(total)
-          setInnerContentMessage(errorMsg)
+          if (errorMsg) {
+            setInnerContentMessageType('error')
+            setInnerContentMessage(errorMsg)
+          }
         })
       }
     } catch (e) {
       setIsLoading(false)
+      setInnerContentMessageType('error')
       setInnerContentMessage(e)
     }
   }
@@ -226,6 +246,7 @@ const Listview: FC<ListviewProps> = function({
     }
 
     if (autoload) {
+      setIsInitLoad(false)
       exeRequest(model, currentPage, currentPageSize)
     }
   }, [])
@@ -280,19 +301,23 @@ const Listview: FC<ListviewProps> = function({
           }}
           onChange={onChange}
         />
-        <Table
-          style={{ height: contentHeight }}
-          loading={isLoading}
-          scroll={{ y: parseFloat(contentHeight) - listviewPaginationHeight }}
-          columns={tableColumns}
-          dataSource={contentData}
-          rowSelection={{ type: 'checkbox' }}
-          rowKey={tableRowKey}
-          // components={{ header: { wrapper: renderTableBody(innerContentMessage) } }}
-          pagination={_pagination}
-          bordered
-          {...tableProps}
-        ></Table>
+        <div className='listview__content'>
+          <Table
+            style={{ height: contentHeight }}
+            loading={isLoading}
+            scroll={{ y: parseFloat(contentHeight) - listviewPaginationHeight }}
+            columns={tableColumns}
+            dataSource={contentData}
+            rowSelection={{ type: 'checkbox' }}
+            rowKey={tableRowKey}
+            pagination={_pagination}
+            bordered
+            {...tableProps}
+          ></Table>
+          {isInitLoad
+            ? renderContentMessage(contentMessage, contentMessageType)
+            : renderContentMessage(innerContentMessage, innerContentMessageType)}
+        </div>
       </div>
     </div>
   )

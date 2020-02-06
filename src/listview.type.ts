@@ -44,8 +44,10 @@ export interface ListviewProps extends ListviewHeaderProps, FilterbarProps {
   /** 数据接口响应内容属性映射。 default: { items: 'result.items', total: 'result.total_count' } */
   contentDataMap?: ContentDataMap
 
-  /** 可用在 autoload 为 false 时候，初始显示的提示信息。 default: null */
-  contentMessage?: null | string
+  contentMessageType?: ContentMessageType
+
+  /** 可用在 autoload 为 false 时候，初始显示的提示信息。*/
+  contentMessage?: string
 
   /** 验证接口响应是否成功 */
   validateResponse?: ValidateResponse
@@ -77,6 +79,8 @@ export interface ListviewProps extends ListviewHeaderProps, FilterbarProps {
   /** 默认每页分页数量。 default: 20 */
   pageSize?: number
 }
+
+export type ContentMessageType = 'success' | 'info' | 'warning' | 'error'
 
 export interface FilterbarProps {
   filterButtons?: FilterButton[]
