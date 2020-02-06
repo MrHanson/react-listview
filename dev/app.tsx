@@ -75,11 +75,13 @@ function App(): any {
     },
     filterFields: [
       {
+        label: 'input1',
         model: 'input1',
         type: 'Input',
         placeholder: 'Input1'
       },
       {
+        label: 'input2',
         model: 'input2',
         type: 'Input',
         placeholder: 'Input2'

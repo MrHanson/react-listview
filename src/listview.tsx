@@ -294,11 +294,11 @@ const Listview: FC<ListviewProps> = function({
         <Filterbar
           ref={filterbarRef}
           {...filterBarProps}
-          onSearch={(formName, info): void => {
+          onSearch={(values): void => {
             setIsInitLoad(false)
-            setModel(info.values)
-            exeRequest(info.values, currentPage, currentPageSize)
-            onSearch?.(formName, info)
+            setModel(values)
+            exeRequest(values, currentPage, currentPageSize)
+            onSearch?.(values)
           }}
           onChange={onChange}
         />

@@ -2,6 +2,7 @@ import { AxiosRequestConfig, Method } from 'axios'
 import { TableProps, TablePaginationConfig } from 'antd/es/table/index'
 import { ColumnProps } from 'antd/es/table/Column'
 import { ClickParam } from 'antd/es/menu/index'
+import { FormInstance } from 'antd/es/form/Form'
 import { ReactNode } from 'react'
 
 interface HeaderNav {
@@ -93,8 +94,8 @@ export interface FilterbarProps {
   filterResetText?: string
   prependSubmitSlot?: ReactNode
   appendSubmitSlot?: ReactNode
-  onChange?: (formName: string, info: { changedFields; forms }) => void
-  onSearch?: (formName: string, info: { values; forms }) => void
+  onChange?: (changedValues, allValues, formInstance) => void
+  onSearch?: (values) => void
 }
 
 export interface TableColumnGroup {
@@ -169,7 +170,6 @@ type FieldType =
   | 'RangePicker'
   | 'WeekPicker'
   | 'Input'
-  | 'Mentions'
   | 'TreeSelect'
 
 export interface SelectOption {

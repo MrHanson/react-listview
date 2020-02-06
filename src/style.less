@@ -68,7 +68,22 @@
         }
       }
 
-      .filterbar__form {
+      .filterbar__form-item {
+        display: inline-block;
+        position: relative;
+        .filterbar_field-label {
+          position: absolute;
+          font-size: 14px;
+          padding: 0 4px;
+          line-height: 20px;
+          background-color: #fff;
+          color: #a78c8c;
+          left: 50%;
+          top: 0;
+          transform: translate(-50%, -5px);
+          transition: 0.2s ease all;
+          z-index: 1;
+        }
         .filterbar__field {
           box-sizing: border-box;
           line-height: 40px;
