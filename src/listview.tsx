@@ -183,7 +183,7 @@ const Listview: FC<ListviewProps> = function({
 
   const renderContentMessage = function(
     contentMessage: string | undefined,
-    type: ContentMessageType
+    type: ContentMessageType = 'info'
   ): ReactNode {
     const message = type[0].toUpperCase() + type.substring(1)
     if (!contentMessage) {
@@ -295,6 +295,7 @@ const Listview: FC<ListviewProps> = function({
           ref={filterbarRef}
           {...filterBarProps}
           onSearch={(formName, info): void => {
+            setIsInitLoad(false)
             setModel(info.values)
             exeRequest(info.values, currentPage, currentPageSize)
             onSearch?.(formName, info)
