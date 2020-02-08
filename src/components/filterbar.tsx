@@ -141,7 +141,6 @@ const Filterbar: FC<FilterbarProps> = function(
 
   const filterbarFormRef = useRef(null)
   const filterbarSubmitRef = useRef(null)
-  const [initFlag, setInitFlag] = useState(true)
   const [filterbarIsFold, setFilterbarIsFold] = useState(filterbarFold)
   const [filterbarHasMore, setFilterbarHasMore] = useState(false)
   const isNoneFields = filterFields.length === 0
@@ -152,7 +151,6 @@ const Filterbar: FC<FilterbarProps> = function(
     if (filterbarFormHeight > 40) {
       setFilterbarHasMore(true)
     }
-    setInitFlag(false)
   }, [])
 
   return (
