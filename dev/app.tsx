@@ -87,11 +87,13 @@ function App(): any {
         placeholder: 'Input2'
       },
       {
+        label: 'input3',
         model: 'input3',
         type: 'Input',
         placeholder: 'Input3'
       },
       {
+        label: 'selectA',
         model: 'selectA',
         type: 'Select',
         placeholder: 'SelectA',
@@ -102,6 +104,7 @@ function App(): any {
         }))
       },
       {
+        label: 'selectB',
         model: 'selectB',
         type: 'Select',
         placeholder: 'SelectB',
@@ -112,11 +115,13 @@ function App(): any {
         }))
       },
       {
+        label: 'dateRange',
         model: 'dateRange',
         type: 'RangePicker',
         placeholderPair: ['起始日期', '终止日期']
       },
       {
+        label: 'treeData',
         model: 'treeData',
         type: 'TreeSelect',
         placeholder: 'TreeData',
