@@ -3,19 +3,21 @@
  *
  */
 
+const version = require('../package.json').version
+
 module.exports = {
   title: 'React Listview',
   tagline: 'Gennerate listview layout based on AntD & React hooks & Typescript',
-  url: 'https://your-docusaurus-test-site.com',
+  url: 'https://mrhanson.github.io/react-listview',
   baseUrl: '/',
   favicon: 'img/favicon.ico',
   organizationName: 'MrHanson', // Usually your GitHub org/user name.
   projectName: 'react-listview', // Usually your repo name.
   themeConfig: {
     navbar: {
-      title: 'React Listview',
+      title: `React Listview V${version}`,
       links: [
-        { to: 'docs/quick-start', label: 'Docs', position: 'left' },
+        { to: 'docs/description', label: 'Docs', position: 'left' },
         // Please keep GitHub link to the right for consistency.
         {
           href: 'https://github.com/MrHanson/react-listview',

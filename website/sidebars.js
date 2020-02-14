@@ -1,6 +1,6 @@
 module.exports = {
   someSidebar: {
-    Usage: ['quick-start'],
+    Usage: ['quick-start', 'description'],
     Props: ['props']
   }
 }

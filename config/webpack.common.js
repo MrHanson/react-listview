@@ -12,8 +12,7 @@ const config = {
     rules: [
       {
         test: /\.(ts)x?$/,
-        exclude: /node_modules/,
-        use: ['babel-loader']
+        use: { loader: 'babel-loader', options: { babelrc: true } }
       },
       {
         test: /\.css$/i,

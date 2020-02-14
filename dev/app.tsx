@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react'
 import { render } from 'react-dom'
-import Listview from '@/listview'
+import Listview from '../dist/react-listview.common.js'
 import { ListviewProps } from '@/listview.type'
 
 function App(): any {

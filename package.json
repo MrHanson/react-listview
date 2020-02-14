@@ -10,6 +10,12 @@
     "name": "mrhanson",
     "email": "chihanghanson@gmail.com"
   },
+  "main": "dist/listview.common.js",
+  "types": "types.d.ts",
+  "files": [
+    "dist",
+    "types.d.ts"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -18,13 +24,10 @@
   "bugs": {
     "url": "https://github.com/MrHanson/react-listview/issues"
   },
-  "files": [
-    "src",
-    "dist"
-  ],
   "scripts": {
     "dev": "webpack-dev-server --mode development --open --hot --config config/webpack.dev.js",
-    "build": "rimraf dist && webpack --mode production --config config/webpack.prod.js"
+    "release": "rollup --config",
+    "release:report": "cross-env REPORT=true rollup --config"
   },
   "keywords": [
     "react",
@@ -51,6 +54,8 @@
     "@babel/preset-env": "^7.7.6",
     "@babel/preset-react": "^7.7.4",
     "@babel/preset-typescript": "^7.7.4",
+    "@rollup/plugin-node-resolve": "^7.1.1",
+    "@rollup/plugin-typescript": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "^2.11.0",
     "@typescript-eslint/parser": "^2.11.0",
     "autoprefixer": "^9.7.4",
@@ -59,6 +64,7 @@
     "babel-plugin-import": "^1.13.0",
     "babel-plugin-lodash": "^3.3.4",
     "body-parser": "^1.19.0",
+    "cross-env": "^7.0.0",
     "css-loader": "^3.3.2",
     "eslint": "^6.7.2",
     "eslint-plugin-react": "^7.17.0",
@@ -73,10 +79,14 @@
     "prettier": "^1.19.1",
     "react-test-renderer": "^16.12.0",
     "rimraf": "^3.0.1",
+    "rollup": "^1.31.0",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-uglify": "^6.0.4",
+    "rollup-plugin-visualizer": "^3.3.1",
     "style-loader": "^1.0.1",
     "typescript": "^3.7.3",
     "webpack": "^4.41.2",
-    "webpack-bundle-analyzer": "^3.6.0",
     "webpack-cli": "^3.3.10",
     "webpack-dev-server": "^3.9.0",
     "webpack-merge": "^4.2.2"
