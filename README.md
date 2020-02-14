@@ -8,4 +8,4 @@
 
 ## Docs
 
-English | 中文
+https://mrhanson.github.io/react-listview/
