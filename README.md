@@ -4,7 +4,7 @@
 
 ![demo-pic](./website/static/img/demo-pic.PNG)
 
-> :construction: Knock off temporarily due to encountering build difificulties on [@rollup/plugin-typescript](https://github.com/rollup/plugins/tree/master/packages/typescript) ([Related issue](https://github.com/rollup/plugins/issues/205))
+> :construction: Developing
 
 ## Docs
 

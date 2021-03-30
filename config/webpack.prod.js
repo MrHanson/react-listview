@@ -13,7 +13,7 @@ const genBundle = function(libraryTarget = '') {
   let finalTarget = 'web'
   let finalLibraryTarget = 'umd'
   const plugins = [
-    new webpack.BannerPlugin(`\n * @preserve\n * @MrHanson/vue-file-preview v${version}\n`)
+    new webpack.BannerPlugin(`\n * @preserve\n * @MrHanson/react-listview v${version}\n`)
   ]
 
   if (libraryTarget.indexOf('umd') >= 0) {
